@@ -25,6 +25,7 @@ export const TournamentSettingsModal: React.FC<TournamentSettingsModalProps> = (
   const [semifinalsBestOf, setSemifinalsBestOf] = useState(settings.semifinalsBestOf ?? 5);
   const [finalsBestOf, setFinalsBestOf] = useState(settings.finalsBestOf ?? 7);
   const [thirdPlaceBestOf, setThirdPlaceBestOf] = useState(settings.thirdPlaceBestOf ?? 3);
+  const [adminPasscode, setAdminPasscode] = useState(settings.adminPasscode || 'admin123');
   const [isUploading, setIsUploading] = useState(false);
 
   if (!isOpen) return null;
@@ -60,6 +61,7 @@ export const TournamentSettingsModal: React.FC<TournamentSettingsModalProps> = (
       semifinalsBestOf: Number(semifinalsBestOf),
       finalsBestOf: Number(finalsBestOf),
       thirdPlaceBestOf: Number(thirdPlaceBestOf),
+      adminPasscode: adminPasscode.trim() || 'admin123',
     });
     onClose();
   };
@@ -234,6 +236,22 @@ export const TournamentSettingsModal: React.FC<TournamentSettingsModalProps> = (
                   </button>
                 )}
               </div>
+            </div>
+
+            {/* Admin Security Settings */}
+            <div className="form-group" style={{ marginTop: '18px' }}>
+              <label className="form-label">Organizer Admin Passcode</label>
+              <input
+                type="text"
+                className="form-input"
+                value={adminPasscode}
+                onChange={(e) => setAdminPasscode(e.target.value)}
+                placeholder="Default: admin123"
+                required
+              />
+              <span style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '4px', display: 'block' }}>
+                Used by tournament staff to log in and unlock admin editing controls.
+              </span>
             </div>
           </div>
 

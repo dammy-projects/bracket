@@ -11,6 +11,7 @@ export const INITIAL_SETTINGS: TournamentSettings = {
   finalsBestOf: 7,
   thirdPlaceBestOf: 3,
   statusBadge: 'LIVE',
+  adminPasscode: 'admin123',
 };
 
 // Preset logo icons and colors for team builder

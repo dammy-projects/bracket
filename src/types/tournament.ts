@@ -42,6 +42,7 @@ export interface TournamentSettings {
   finalsBestOf: number; // default 7
   thirdPlaceBestOf: number; // default 3
   statusBadge: 'LIVE' | 'UPCOMING' | 'COMPLETED';
+  adminPasscode?: string;
 }
 
 export interface Tournament {

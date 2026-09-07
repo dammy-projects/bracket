@@ -1,14 +1,15 @@
 import React from 'react';
 import { TournamentSettings, Round } from '../types/tournament';
-import { Users, Printer, Code, Maximize2, RefreshCw, Trophy, Eye, EyeOff } from 'lucide-react';
+import { Users, Printer, Code, Maximize2, RefreshCw, Trophy, Lock, LogOut, ShieldCheck, Globe, Settings as SettingsIcon } from 'lucide-react';
 
 interface HeaderProps {
   settings: TournamentSettings;
   rounds: Round[];
   activeRoundIndex: number | 'all';
   participantCount: number;
-  isViewOnly?: boolean;
-  onToggleViewOnly?: () => void;
+  isAdmin: boolean;
+  onOpenLoginModal: () => void;
+  onLogout: () => void;
   onSelectRound: (roundIndex: number | 'all') => void;
   onOpenParticipantsModal: () => void;
   onOpenExportModal: () => void;
@@ -23,8 +24,9 @@ export const Header: React.FC<HeaderProps> = ({
   rounds,
   activeRoundIndex,
   participantCount,
-  isViewOnly = false,
-  onToggleViewOnly,
+  isAdmin,
+  onOpenLoginModal,
+  onLogout,
   onSelectRound,
   onOpenParticipantsModal,
   onOpenExportModal,
@@ -39,9 +41,9 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="brand-section">
         <div
           className="brand-logo-container"
-          onClick={!isViewOnly ? onOpenSettingsModal : undefined}
-          title={isViewOnly ? settings.title : 'Click to edit tournament logo and details'}
-          style={{ cursor: isViewOnly ? 'default' : 'pointer' }}
+          onClick={isAdmin ? onOpenSettingsModal : undefined}
+          title={isAdmin ? 'Click to edit tournament logo and details' : settings.title}
+          style={{ cursor: isAdmin ? 'pointer' : 'default' }}
         >
           {settings.logoUrl ? (
             <img
@@ -56,7 +58,26 @@ export const Header: React.FC<HeaderProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="brand-title-input">{settings.title}</span>
-            {isViewOnly && (
+            {isAdmin ? (
+              <span
+                style={{
+                  fontSize: '0.65rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  background: 'rgba(16, 185, 129, 0.2)',
+                  color: '#34d399',
+                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <ShieldCheck size={12} /> Admin Mode
+              </span>
+            ) : (
               <span
                 style={{
                   fontSize: '0.65rem',
@@ -68,9 +89,12 @@ export const Header: React.FC<HeaderProps> = ({
                   border: '1px solid rgba(59, 130, 246, 0.4)',
                   padding: '2px 8px',
                   borderRadius: '12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
                 }}
               >
-                Spectator View
+                <Globe size={12} /> Public View
               </span>
             )}
           </div>
@@ -104,21 +128,22 @@ export const Header: React.FC<HeaderProps> = ({
           {settings.statusBadge}
         </div>
 
-        {onToggleViewOnly && (
-          <button
-            className={`icon-btn ${isViewOnly ? 'primary' : ''}`}
-            onClick={onToggleViewOnly}
-            title={isViewOnly ? 'Switch to Edit Mode' : 'Switch to Spectator / View Only Mode'}
-          >
-            {isViewOnly ? <EyeOff size={16} /> : <Eye size={16} />}
-            <span>{isViewOnly ? 'Edit Mode' : 'View Only'}</span>
-          </button>
-        )}
+        {isAdmin ? (
+          <>
+            <button className="icon-btn primary" onClick={onOpenParticipantsModal}>
+              <Users size={16} />
+              <span>Teams ({participantCount})</span>
+            </button>
 
-        {!isViewOnly && (
-          <button className="icon-btn primary" onClick={onOpenParticipantsModal}>
-            <Users size={16} />
-            <span>Teams ({participantCount})</span>
+            <button className="icon-btn" onClick={onOpenSettingsModal} title="Tournament Settings">
+              <SettingsIcon size={16} />
+              <span>Settings</span>
+            </button>
+          </>
+        ) : (
+          <button className="icon-btn primary" onClick={onOpenLoginModal} title="Log in as Organizer Admin">
+            <Lock size={16} />
+            <span>Admin Login</span>
           </button>
         )}
 
@@ -134,9 +159,16 @@ export const Header: React.FC<HeaderProps> = ({
           <Code size={16} />
         </button>
 
-        {!isViewOnly && (
-          <button className="icon-btn" onClick={onResetBracket} title="Reset Scores">
+        {isAdmin && (
+          <button className="icon-btn danger" onClick={onResetBracket} title="Reset Scores">
             <RefreshCw size={16} />
+          </button>
+        )}
+
+        {isAdmin && (
+          <button className="icon-btn" onClick={onLogout} title="Log Out Admin Session">
+            <LogOut size={16} />
+            <span>Log Out</span>
           </button>
         )}
       </div>

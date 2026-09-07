@@ -17,6 +17,7 @@ import { WinnerCelebrationModal } from './components/WinnerCelebrationModal';
 import { ExportShareModal } from './components/ExportShareModal';
 import { TournamentSettingsModal } from './components/TournamentSettingsModal';
 import { SupabaseConfigModal } from './components/SupabaseConfigModal';
+import { AdminLoginModal } from './components/AdminLoginModal';
 
 export const App: React.FC = () => {
   const tournamentId = 't_current';
@@ -53,14 +54,37 @@ export const App: React.FC = () => {
     return generateBracket(INITIAL_PARTICIPANTS, INITIAL_SETTINGS);
   });
 
-  const [isViewOnly, setIsViewOnly] = useState<boolean>(() => {
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    return sessionStorage.getItem('bracket_admin_auth') === 'true';
+  });
+
+  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
+
+  const isUrlViewOnly = (() => {
     const params = new URLSearchParams(window.location.search);
     return (
       params.get('view') === 'readonly' ||
       params.get('mode') === 'view' ||
       params.get('view') === 'true'
     );
-  });
+  })();
+
+  const isViewOnly = isUrlViewOnly || !isAdmin;
+
+  const handleAdminLogin = (inputPasscode: string): boolean => {
+    const expectedPasscode = settings.adminPasscode || 'admin123';
+    if (inputPasscode === expectedPasscode) {
+      setIsAdmin(true);
+      sessionStorage.setItem('bracket_admin_auth', 'true');
+      return true;
+    }
+    return false;
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+    sessionStorage.removeItem('bracket_admin_auth');
+  };
 
   const [activeRoundIndex, setActiveRoundIndex] = useState<number | 'all'>('all');
   const [highlightedParticipantId, setHighlightedParticipantId] = useState<string | null>(null);
@@ -242,8 +266,9 @@ export const App: React.FC = () => {
         rounds={roundNames}
         activeRoundIndex={activeRoundIndex}
         participantCount={participants.length}
-        isViewOnly={isViewOnly}
-        onToggleViewOnly={() => setIsViewOnly((prev) => !prev)}
+        isAdmin={isAdmin}
+        onOpenLoginModal={() => setIsAdminLoginOpen(true)}
+        onLogout={handleAdminLogout}
         onSelectRound={setActiveRoundIndex}
         onOpenParticipantsModal={() => setIsParticipantsOpen(true)}
         onOpenExportModal={() => setIsExportOpen(true)}
@@ -264,6 +289,11 @@ export const App: React.FC = () => {
       />
 
       {/* Modals */}
+      <AdminLoginModal
+        isOpen={isAdminLoginOpen}
+        onClose={() => setIsAdminLoginOpen(false)}
+        onLogin={handleAdminLogin}
+      />
       <ParticipantManagerModal
         participants={participants}
         isOpen={isParticipantsOpen}
