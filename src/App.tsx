@@ -55,12 +55,57 @@ export const App: React.FC = () => {
   // CODM Battle Royale State
   const [codmSettings, setCodmSettings] = useState<CodmTournamentSettings>(() => {
     const saved = localStorage.getItem('codm_settings');
-    return saved ? JSON.parse(saved) : INITIAL_CODM_SETTINGS;
+    if (!saved) return INITIAL_CODM_SETTINGS;
+    try {
+      const parsed: CodmTournamentSettings = JSON.parse(saved);
+      if (parsed.totalTeams === 7) {
+        parsed.totalTeams = 8;
+        if (parsed.subtitle && parsed.subtitle.includes('7 Teams')) {
+          parsed.subtitle = parsed.subtitle.replace('7 Teams', '8 Teams');
+        }
+        safeSetLocalStorage('codm_settings', parsed);
+      }
+      return parsed;
+    } catch {
+      return INITIAL_CODM_SETTINGS;
+    }
   });
 
   const [codmTeams, setCodmTeams] = useState<CodmTeam[]>(() => {
     const saved = localStorage.getItem('codm_teams');
-    return saved ? JSON.parse(saved) : INITIAL_CODM_TEAMS;
+    if (!saved) return INITIAL_CODM_TEAMS;
+    try {
+      const parsed: CodmTeam[] = JSON.parse(saved);
+      const hasTechPython = parsed.some(
+        (t) =>
+          t.id === 'ct_8' ||
+          t.name.toLowerCase().includes('python') ||
+          t.tag?.toUpperCase() === 'BSIT'
+      );
+      if (!hasTechPython) {
+        const pythonTeam = INITIAL_CODM_TEAMS.find((t) => t.id === 'ct_8') || {
+          id: 'ct_8',
+          name: 'Tech Python',
+          tag: 'BSIT',
+          seed: 8,
+          avatarColor: '#10b981',
+          avatarIcon: '🐍',
+          players: [
+            { id: 'p_8_1', name: 'Player 1', ign: 'BSIT-Python', role: 'main' as const },
+            { id: 'p_8_2', name: 'Player 2', ign: 'BSIT-Byte', role: 'main' as const },
+            { id: 'p_8_3', name: 'Player 3', ign: 'BSIT-Cipher', role: 'main' as const },
+            { id: 'p_8_4', name: 'Player 4', ign: 'BSIT-Glitch', role: 'main' as const },
+            { id: 'p_8_5', name: 'Player 5 (Sub)', ign: 'BSIT-Reserve', role: 'reserve' as const },
+          ],
+        };
+        const updated = [...parsed, pythonTeam];
+        safeSetLocalStorage('codm_teams', updated);
+        return updated;
+      }
+      return parsed;
+    } catch {
+      return INITIAL_CODM_TEAMS;
+    }
   });
 
   const [codmRounds, setCodmRounds] = useState<CodmRound[]>(() => {
@@ -456,6 +501,7 @@ export const App: React.FC = () => {
         isOpen={isCodmRulesOpen}
         onClose={() => setIsCodmRulesOpen(false)}
         dateText={codmSettings.dateText}
+        totalTeams={codmTeams.length}
       />
 
       <CodmTeamManagerModal
@@ -465,6 +511,15 @@ export const App: React.FC = () => {
         onUpdateTeams={(updated) => {
           setCodmTeams(updated);
           safeSetLocalStorage('codm_teams', updated);
+          setCodmSettings((prev) => {
+            const next = {
+              ...prev,
+              totalTeams: updated.length,
+              subtitle: prev.subtitle.replace(/\d+\s*Teams/i, `${updated.length} Teams`),
+            };
+            safeSetLocalStorage('codm_settings', next);
+            return next;
+          });
         }}
       />
 

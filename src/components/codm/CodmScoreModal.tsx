@@ -143,7 +143,7 @@ export const CodmScoreModal: React.FC<CodmScoreModalProps> = ({
             <div>
               <h3 className="modal-title">Record Scores: {round.name}</h3>
               <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                {round.lobbyType} • 7 Teams • Battle Royale Squad
+                {round.lobbyType} • {teams.length} Teams • Battle Royale Squad
               </p>
             </div>
           </div>

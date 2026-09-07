@@ -4,10 +4,10 @@ export const CODM_MAPS = ['Isolated', 'Blackout', 'Krai'];
 
 export const INITIAL_CODM_SETTINGS: CodmTournamentSettings = {
   title: 'CALL OF DUTY: MOBILE – BATTLE ROYALE',
-  subtitle: 'Squad Mode • 7 Teams • 4 Rounds • Online Custom Lobby',
+  subtitle: 'Squad Mode • 8 Teams • 4 Rounds • Online Custom Lobby',
   gameMode: 'Battle Royale – Squad',
   totalMatches: 4,
-  totalTeams: 7,
+  totalTeams: 8,
   statusBadge: 'LIVE',
   dateText: 'TBA',
   pointsPerKill: 1,
@@ -119,6 +119,21 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
       { id: 'p_7_3', name: 'Player 3', ign: 'ENT-Buzz', role: 'main' },
       { id: 'p_7_4', name: 'Player 4', ign: 'ENT-Hive', role: 'main' },
       { id: 'p_7_5', name: 'Player 5 (Sub)', ign: 'ENT-Reserve', role: 'reserve' },
+    ],
+  },
+  {
+    id: 'ct_8',
+    name: 'Tech Python',
+    tag: 'BSIT',
+    seed: 8,
+    avatarColor: '#10b981',
+    avatarIcon: '🐍',
+    players: [
+      { id: 'p_8_1', name: 'Player 1', ign: 'BSIT-Python', role: 'main' },
+      { id: 'p_8_2', name: 'Player 2', ign: 'BSIT-Byte', role: 'main' },
+      { id: 'p_8_3', name: 'Player 3', ign: 'BSIT-Cipher', role: 'main' },
+      { id: 'p_8_4', name: 'Player 4', ign: 'BSIT-Glitch', role: 'main' },
+      { id: 'p_8_5', name: 'Player 5 (Sub)', ign: 'BSIT-Reserve', role: 'reserve' },
     ],
   },
 ];

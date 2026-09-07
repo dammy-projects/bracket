@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CodmTeam, CodmPlayer } from '../../types/codm';
 import { PRESET_AVATARS } from '../../utils/defaultData';
 import { uploadLogoToSupabaseStorage } from '../../services/supabaseService';
-import { X, Users, Upload, Shield, UserCheck, ChevronRight, Save } from 'lucide-react';
+import { X, Users, Upload, Shield, UserCheck, ChevronRight, Save, Plus, Trash2 } from 'lucide-react';
 
 interface CodmTeamManagerModalProps {
   teams: CodmTeam[];
@@ -23,9 +23,52 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
   // Local copy of teams for editing
   const [localTeams, setLocalTeams] = useState<CodmTeam[]>(teams);
 
+  useEffect(() => {
+    setLocalTeams(teams);
+    if (teams.length > 0 && !teams.some((t) => t.id === selectedTeamId)) {
+      setSelectedTeamId(teams[0].id);
+    }
+  }, [teams, isOpen]);
+
   if (!isOpen) return null;
 
   const currentTeam = localTeams.find((t) => t.id === selectedTeamId) || localTeams[0];
+
+  const handleAddNewTeam = () => {
+    const newIdx = localTeams.length + 1;
+    const avatar = PRESET_AVATARS[(newIdx - 1) % PRESET_AVATARS.length];
+    const newTeam: CodmTeam = {
+      id: `ct_${Date.now()}`,
+      name: `Team ${newIdx}`,
+      tag: `T${newIdx}`,
+      seed: newIdx,
+      avatarColor: avatar.color,
+      avatarIcon: avatar.icon,
+      players: [
+        { id: `p_${Date.now()}_1`, name: 'Player 1', ign: '', role: 'main' },
+        { id: `p_${Date.now()}_2`, name: 'Player 2', ign: '', role: 'main' },
+        { id: `p_${Date.now()}_3`, name: 'Player 3', ign: '', role: 'main' },
+        { id: `p_${Date.now()}_4`, name: 'Player 4', ign: '', role: 'main' },
+        { id: `p_${Date.now()}_5`, name: 'Player 5 (Sub)', ign: '', role: 'reserve' },
+      ],
+    };
+    setLocalTeams([...localTeams, newTeam]);
+    setSelectedTeamId(newTeam.id);
+  };
+
+  const handleDeleteTeam = (teamId: string) => {
+    if (localTeams.length <= 2) {
+      alert('Tournament must have at least 2 teams.');
+      return;
+    }
+    if (window.confirm('Are you sure you want to remove this team?')) {
+      const remaining = localTeams.filter((t) => t.id !== teamId);
+      setLocalTeams(remaining);
+      if (selectedTeamId === teamId && remaining.length > 0) {
+        setSelectedTeamId(remaining[0].id);
+      }
+    }
+  };
 
   const handleUpdateTeamField = (field: keyof CodmTeam, value: any) => {
     if (!currentTeam) return;
@@ -135,6 +178,31 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
                 <ChevronRight size={14} className="nav-chevron" />
               </button>
             ))}
+
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={handleAddNewTeam}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px',
+                marginTop: '10px',
+                border: '1px dashed #3b82f6',
+                borderRadius: '8px',
+                background: 'rgba(59, 130, 246, 0.08)',
+                color: '#60a5fa',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                width: '100%',
+              }}
+            >
+              <Plus size={15} />
+              <span>Add Team</span>
+            </button>
           </div>
 
           {/* Right Panel: Selected Team Details & 5-Player Roster */}
@@ -162,7 +230,7 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
                   </div>
 
                   <div style={{ flex: 1 }}>
-                    <div className="form-row">
+                    <div className="form-row" style={{ alignItems: 'flex-end' }}>
                       <div className="form-group" style={{ marginBottom: 0, flex: 2 }}>
                         <label className="form-label">Team Name</label>
                         <input
@@ -182,6 +250,25 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
                           onChange={(e) => handleUpdateTeamField('tag', e.target.value)}
                         />
                       </div>
+                      {localTeams.length > 2 && (
+                        <button
+                          type="button"
+                          className="icon-btn"
+                          style={{
+                            color: '#ef4444',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            background: 'rgba(239, 68, 68, 0.05)',
+                            padding: '8px 10px',
+                            fontSize: '0.75rem',
+                            height: '38px',
+                          }}
+                          onClick={() => handleDeleteTeam(currentTeam.id)}
+                          title="Remove team from tournament"
+                        >
+                          <Trash2 size={14} />
+                          <span>Remove</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

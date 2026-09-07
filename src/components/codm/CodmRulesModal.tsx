@@ -6,12 +6,14 @@ interface CodmRulesModalProps {
   isOpen: boolean;
   onClose: () => void;
   dateText?: string;
+  totalTeams?: number;
 }
 
 export const CodmRulesModal: React.FC<CodmRulesModalProps> = ({
   isOpen,
   onClose,
   dateText = 'TBA',
+  totalTeams = 8,
 }) => {
   if (!isOpen) return null;
 
@@ -67,7 +69,7 @@ export const CodmRulesModal: React.FC<CodmRulesModalProps> = ({
                 </div>
                 <div className="format-item">
                   <span className="format-label">Total Teams</span>
-                  <span className="format-val">7 Teams</span>
+                  <span className="format-val">{totalTeams} Teams</span>
                 </div>
                 <div className="format-item">
                   <span className="format-label">Game Mode</span>

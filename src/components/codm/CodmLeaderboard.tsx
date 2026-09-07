@@ -80,7 +80,7 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
             <div className="codm-badge-group">
               <span className="codm-game-badge">🎮 {settings.gameMode}</span>
               <span className="codm-info-pill">📅 {settings.dateText}</span>
-              <span className="codm-info-pill">👥 {settings.totalTeams} Teams</span>
+              <span className="codm-info-pill">👥 {teams.length || settings.totalTeams} Teams</span>
               <span className="codm-info-pill">🎯 4 Matches</span>
             </div>
           </div>
@@ -462,7 +462,7 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
             </div>
             <div className="meta-box">
               <span className="meta-lbl">FORMAT</span>
-              <span className="meta-val">{settings.totalTeams} Teams • 4 Rounds</span>
+              <span className="meta-val">{teams.length || settings.totalTeams} Teams • 4 Rounds</span>
             </div>
             <div className="meta-box">
               <span className="meta-lbl">DATE</span>
