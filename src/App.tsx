@@ -318,28 +318,30 @@ export const App: React.FC = () => {
 
   return (
     <div className="bracket-workspace">
-      {/* Print-Only Header Banner */}
-      <div className="print-only-header">
-        <div className="print-header-brand">
-          {activeLogo && (
-            <img src={activeLogo} alt="Logo" className="print-logo" />
-          )}
-          <div>
-            <h1 className="print-title">{activeTitle}</h1>
-            {activeSubtitle && <p className="print-subtitle">{activeSubtitle}</p>}
+      {/* Print-Only Header Banner (Used for Knockout Bracket) */}
+      {tournamentMode === 'bracket' && (
+        <div className="print-only-header">
+          <div className="print-header-brand">
+            {activeLogo && (
+              <img src={activeLogo} alt="Logo" className="print-logo" />
+            )}
+            <div>
+              <h1 className="print-title">{activeTitle}</h1>
+              {activeSubtitle && <p className="print-subtitle">{activeSubtitle}</p>}
+            </div>
+          </div>
+          <div className="print-meta">
+            <span className="print-badge">{activeBadge}</span>
+            <span className="print-date">
+              {new Date().toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
           </div>
         </div>
-        <div className="print-meta">
-          <span className="print-badge">{activeBadge}</span>
-          <span className="print-date">
-            {new Date().toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })}
-          </span>
-        </div>
-      </div>
+      )}
 
       <Header
         settings={

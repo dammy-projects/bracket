@@ -2026,57 +2026,439 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* Hide print sheet on screen display */
+.codm-print-sheet {
+  display: none !important;
+}
+
 /* ========================================================
-   PRINT STYLES FOR CODM LEADERBOARD
+   MODERN PRINT STYLES FOR CODM LEADERBOARD
    ======================================================== */
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm 10mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-family: var(--font-body) !important;
+  }
+
+  .bracket-workspace {
+    background: #ffffff !important;
+    background-image: none !important;
+    min-height: auto !important;
+    padding: 0 !important;
+  }
+
+  /* Completely HIDE all interactive web design components */
+  .app-header,
   .tournament-mode-switcher,
+  .codm-screen-view,
   .codm-meta-bar,
+  .codm-round-cards-grid,
+  .codm-podium-section,
   .quick-score-btn,
-  .roster-preview-btn {
+  .roster-preview-btn,
+  .header-actions,
+  .modal-overlay,
+  .tabs-container,
+  .print-only-header {
     display: none !important;
   }
 
   .codm-container {
     padding: 0 !important;
     max-width: 100% !important;
+    margin: 0 !important;
+    width: 100% !important;
+    gap: 0 !important;
   }
 
-  .codm-podium-section {
-    display: none !important; /* Standings table provides complete data */
-  }
-
-  .codm-table-container {
+  /* SHOW modern print sheet */
+  .codm-print-sheet {
+    display: block !important;
+    width: 100% !important;
     background: #ffffff !important;
-    border: 1px solid #000000 !important;
+    color: #0f172a !important;
+  }
+
+  /* Modern Header */
+  .modern-print-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    padding-bottom: 12px !important;
+    border-bottom: 2.5px solid #0f172a !important;
+    margin-bottom: 14px !important;
+  }
+
+  .modern-print-header-main {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+  }
+
+  .modern-print-logo {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 8px !important;
+    object-fit: cover !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  .modern-print-tag {
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    color: #2563eb !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    margin-bottom: 2px !important;
+  }
+
+  .modern-print-title {
+    font-family: var(--font-heading) !important;
+    font-size: 1.4rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.5px !important;
+  }
+
+  .modern-print-subtitle {
+    font-size: 0.8rem !important;
+    color: #475569 !important;
+    margin: 2px 0 0 0 !important;
+    font-weight: 500 !important;
+  }
+
+  .modern-print-meta-grid {
+    display: flex !important;
+    gap: 8px !important;
+  }
+
+  .meta-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    text-align: center !important;
+    min-width: 80px !important;
+  }
+
+  .meta-lbl {
+    font-size: 0.6rem !important;
+    color: #64748b !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    display: block !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .meta-val {
+    font-size: 0.76rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+  }
+
+  .meta-val.badge {
+    color: #2563eb !important;
+  }
+
+  /* Modern Table Design */
+  .modern-print-table-wrap {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    margin-bottom: 12px !important;
     box-shadow: none !important;
   }
 
-  .table-header-title {
-    background: #f3f4f6 !important;
-    color: #000000 !important;
-    border-bottom: 2px solid #000000 !important;
+  .modern-print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    text-align: left !important;
+    font-size: 0.82rem !important;
   }
 
-  .codm-standings-table th {
-    background: #e5e7eb !important;
-    color: #111827 !important;
-    border-bottom: 2px solid #000000 !important;
+  .modern-print-table thead {
+    background: #0f172a !important;
   }
 
-  .codm-standings-table td {
-    border-bottom: 1px solid #d1d5db !important;
-    color: #111827 !important;
+  .modern-print-table th {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    padding: 9px 10px !important;
+    font-weight: 700 !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.05em !important;
+    border: none !important;
+    text-transform: uppercase !important;
   }
 
-  .total-score-pill {
-    background: #f3f4f6 !important;
-    color: #000000 !important;
-    border: 1px solid #000000 !important;
+  .modern-print-table th .th-sub {
+    display: block !important;
+    font-size: 0.62rem !important;
+    font-weight: 500 !important;
+    color: #94a3b8 !important;
+    margin-top: 1px !important;
+    text-transform: capitalize !important;
+    letter-spacing: 0 !important;
   }
 
-  .kills-pill, .placement-pill {
-    background: #f3f4f6 !important;
-    color: #111827 !important;
+  .modern-print-table .col-rank {
+    width: 60px !important;
+    text-align: center !important;
+  }
+
+  .modern-print-table .col-team {
+    text-align: left !important;
+  }
+
+  .modern-print-table .col-match {
+    width: 82px !important;
+    text-align: center !important;
+  }
+
+  .modern-print-table .col-kills {
+    width: 90px !important;
+    text-align: center !important;
+  }
+
+  .modern-print-table .col-placement {
+    width: 110px !important;
+    text-align: center !important;
+  }
+
+  .modern-print-table .col-total {
+    width: 115px !important;
+    text-align: right !important;
+    padding-right: 14px !important;
+  }
+
+  /* Table Body */
+  .modern-print-table tbody tr {
+    border-bottom: 1px solid #e2e8f0 !important;
+    page-break-inside: avoid !important;
+  }
+
+  .modern-print-table tbody tr:nth-child(even) {
+    background: #f8fafc !important;
+  }
+
+  .modern-print-table td {
+    padding: 8px 10px !important;
+    vertical-align: middle !important;
+    color: #1e293b !important;
+    border: none !important;
+  }
+
+  /* Top 3 Subtle Podium Accents */
+  .modern-print-table .print-row.rank-gold {
+    background: #fffbeb !important;
+  }
+
+  .modern-print-table .print-row.rank-silver {
+    background: #f8fafc !important;
+  }
+
+  .modern-print-table .print-row.rank-bronze {
+    background: #fff7ed !important;
+  }
+
+  /* Rank Badges */
+  .print-rank-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 800 !important;
+    font-size: 0.75rem !important;
+    padding: 2px 7px !important;
+    border-radius: 4px !important;
+    min-width: 38px !important;
+  }
+
+  .print-rank-badge.rank-gold {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border: 1px solid #f59e0b !important;
+  }
+
+  .print-rank-badge.rank-silver {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #94a3b8 !important;
+  }
+
+  .print-rank-badge.rank-bronze {
+    background: #ffedd5 !important;
+    color: #9a3412 !important;
+    border: 1px solid #ea580c !important;
+  }
+
+  .print-rank-badge.rank-normal {
+    color: #64748b !important;
+    font-weight: 700 !important;
+    background: transparent !important;
+  }
+
+  /* Team Cell */
+  .print-team-cell {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .print-team-logo {
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 5px !important;
+    object-fit: cover !important;
+    flex-shrink: 0 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  .print-team-logo.icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    color: #ffffff !important;
+  }
+
+  .print-team-details {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .print-team-name {
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    font-size: 0.88rem !important;
+  }
+
+  .print-dept-tag {
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    background: #e2e8f0 !important;
+    padding: 1px 6px !important;
+    border-radius: 4px !important;
+  }
+
+  /* Match Cells */
+  .print-match-cell {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .print-match-total {
+    font-weight: 700 !important;
+    font-size: 0.86rem !important;
+    color: #0f172a !important;
+  }
+
+  .print-match-breakdown {
+    font-size: 0.65rem !important;
+    color: #64748b !important;
+    font-weight: 500 !important;
+  }
+
+  .print-empty {
+    color: #94a3b8 !important;
+    font-size: 0.8rem !important;
+  }
+
+  .print-stat-val {
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    font-size: 0.86rem !important;
+  }
+
+  .print-total-badge {
+    font-weight: 800 !important;
+    font-size: 0.92rem !important;
+    color: #0f172a !important;
+    background: #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 3px 9px !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+  }
+
+  /* Modern Print Footer */
+  .modern-print-footer {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-top: 8px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-scoring-reference {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-size: 0.72rem !important;
+    color: #334155 !important;
+    line-height: 1.4 !important;
+  }
+
+  .reference-title {
+    font-weight: 800 !important;
+    font-size: 0.65rem !important;
+    color: #64748b !important;
+    text-transform: uppercase !important;
+    margin-bottom: 2px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .print-signoff-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    padding-top: 14px !important;
+    margin-top: 4px !important;
+  }
+
+  .signoff-box {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 210px !important;
+  }
+
+  .signoff-box.right {
+    text-align: right !important;
+    width: auto !important;
+  }
+
+  .signoff-line {
+    border-bottom: 1px solid #94a3b8 !important;
+    width: 100% !important;
+    margin-bottom: 4px !important;
+    height: 1px !important;
+  }
+
+  .signoff-label {
+    font-size: 0.66rem !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+  }
+
+  .signoff-date {
+    font-size: 0.7rem !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    margin-bottom: 2px !important;
   }
 }
+
