@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   CodmTeam,
   CodmRound,
@@ -12,8 +12,6 @@ import {
   Edit3,
   Users,
   Award,
-  ChevronDown,
-  ChevronUp,
   MapPin,
   Flame,
 } from 'lucide-react';
@@ -42,11 +40,6 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
   onOpenRulesModal,
 }) => {
   const standings = computeOverallStandings(teams, rounds);
-  const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
-
-  const toggleExpandTeam = (teamId: string) => {
-    setExpandedTeamId((prev) => (prev === teamId ? null : teamId));
-  };
 
   const selectedRound =
     activeRoundFilter === 'all'
@@ -252,7 +245,6 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
             </thead>
             <tbody>
               {standings.map((row) => {
-                const isExpanded = expandedTeamId === row.team.id;
                 const rankClass =
                   row.rank === 1
                     ? 'rank-first'
@@ -263,120 +255,81 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                     : '';
 
                 return (
-                  <React.Fragment key={row.team.id}>
-                    <tr
-                      className={`standings-row ${rankClass}`}
-                      onClick={() => toggleExpandTeam(row.team.id)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {/* Rank Cell */}
-                      <td>
-                        <div className={`rank-indicator ${rankClass}`}>
-                          {row.rank === 1 ? '🥇 1' : row.rank === 2 ? '🥈 2' : row.rank === 3 ? '🥉 3' : row.rank}
-                        </div>
-                      </td>
+                  <tr key={row.team.id} className={`standings-row ${rankClass}`}>
+                    {/* Rank Cell */}
+                    <td>
+                      <div className={`rank-indicator ${rankClass}`}>
+                        {row.rank === 1 ? '🥇 1' : row.rank === 2 ? '🥈 2' : row.rank === 3 ? '🥉 3' : row.rank}
+                      </div>
+                    </td>
 
-                      {/* Team Info Cell */}
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          {row.team.logoUrl ? (
-                            <img src={row.team.logoUrl} alt={row.team.name} className="team-logo-small" />
-                          ) : (
-                            <span
-                              className="team-logo-small"
-                              style={{ backgroundColor: row.team.avatarColor || '#3b82f6' }}
-                            >
-                              {row.team.avatarIcon || '🛡️'}
-                            </span>
-                          )}
-                          <div>
-                            <div className="standings-team-name">
-                              {row.team.name}
-                              {row.firstPlaceCount > 0 && (
-                                <span className="wwcd-badge" title={`${row.firstPlaceCount} Match Win(s)`}>
-                                  👑 x{row.firstPlaceCount}
-                                </span>
-                              )}
-                            </div>
-                            <div className="standings-team-sub">
-                              {row.team.tag && <span className="team-tag-badge">{row.team.tag}</span>}
-                              <span className="roster-preview-btn">
-                                5 Players {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                    {/* Team Info Cell */}
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {row.team.logoUrl ? (
+                          <img src={row.team.logoUrl} alt={row.team.name} className="team-logo-small" />
+                        ) : (
+                          <span
+                            className="team-logo-small"
+                            style={{ backgroundColor: row.team.avatarColor || '#3b82f6' }}
+                          >
+                            {row.team.avatarIcon || '🛡️'}
+                          </span>
+                        )}
+                        <div>
+                          <div className="standings-team-name">
+                            {row.team.name}
+                            {row.firstPlaceCount > 0 && (
+                              <span className="wwcd-badge" title={`${row.firstPlaceCount} Match Win(s)`}>
+                                👑 x{row.firstPlaceCount}
                               </span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Match 1 to 4 Breakdown */}
-                      {[1, 2, 3, 4].map((mNum) => {
-                        const mRes = row.matchBreakdown[mNum];
-                        return (
-                          <td key={mNum} className="match-col">
-                            {mRes && mRes.placement > 0 ? (
-                              <div className="match-cell-box">
-                                <span className="match-pts-val">{mRes.totalPoints}</span>
-                                <span className="match-pts-sub">
-                                  #{mRes.placement} • {mRes.kills}k
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="match-cell-empty">-</span>
                             )}
-                          </td>
-                        );
-                      })}
+                          </div>
+                          {row.team.tag && (
+                            <div className="standings-team-sub">
+                              <span className="team-tag-badge">{row.team.tag}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
 
-                      {/* Total Kills */}
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="kills-pill">
-                          <Flame size={12} /> {row.totalKills}
-                        </span>
-                      </td>
-
-                      {/* Total Placement Points */}
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="placement-pill">+{row.totalPlacementPoints}</span>
-                      </td>
-
-                      {/* Total Grand Score */}
-                      <td style={{ textAlign: 'right' }}>
-                        <span className="total-score-pill">{row.totalPoints} PTS</span>
-                      </td>
-                    </tr>
-
-                    {/* Expanded 5-Player Roster Drawer */}
-                    {isExpanded && (
-                      <tr className="roster-drawer-row">
-                        <td colSpan={9}>
-                          <div className="roster-drawer-content">
-                            <div className="drawer-header">
-                              <strong>{row.team.name} Official 5-Player Squad:</strong>
-                              <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                                (4 Main Players + 1 Reserve Player)
+                    {/* Match 1 to 4 Breakdown */}
+                    {[1, 2, 3, 4].map((mNum) => {
+                      const mRes = row.matchBreakdown[mNum];
+                      return (
+                        <td key={mNum} className="match-col">
+                          {mRes && mRes.placement > 0 ? (
+                            <div className="match-cell-box">
+                              <span className="match-pts-val">{mRes.totalPoints}</span>
+                              <span className="match-pts-sub">
+                                #{mRes.placement} • {mRes.kills}k
                               </span>
                             </div>
-                            <div className="drawer-players-grid">
-                              {row.team.players?.map((pl, idx) => (
-                                <div
-                                  key={pl.id || idx}
-                                  className={`drawer-player-item ${
-                                    pl.role === 'reserve' ? 'reserve' : 'main'
-                                  }`}
-                                >
-                                  <div className="drawer-role-tag">
-                                    {pl.role === 'reserve' ? '🛡️ RESERVE' : `SQUAD #${idx + 1}`}
-                                  </div>
-                                  <div className="drawer-player-name">{pl.name}</div>
-                                  {pl.ign && <div className="drawer-player-ign">IGN: {pl.ign}</div>}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+                          ) : (
+                            <span className="match-cell-empty">-</span>
+                          )}
                         </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
+                      );
+                    })}
+
+                    {/* Total Kills */}
+                    <td style={{ textAlign: 'center' }}>
+                      <span className="kills-pill">
+                        <Flame size={12} /> {row.totalKills}
+                      </span>
+                    </td>
+
+                    {/* Total Placement Points */}
+                    <td style={{ textAlign: 'center' }}>
+                      <span className="placement-pill">+{row.totalPlacementPoints}</span>
+                    </td>
+
+                    {/* Total Grand Score */}
+                    <td style={{ textAlign: 'right' }}>
+                      <span className="total-score-pill">{row.totalPoints} PTS</span>
+                    </td>
+                  </tr>
                 );
               })}
             </tbody>
