@@ -1,12 +1,14 @@
 import React from 'react';
 import { TournamentSettings, Round } from '../types/tournament';
-import { Users, Printer, Code, Maximize2, RefreshCw, Trophy, Database } from 'lucide-react';
+import { Users, Printer, Code, Maximize2, RefreshCw, Trophy, Eye, EyeOff } from 'lucide-react';
 
 interface HeaderProps {
   settings: TournamentSettings;
   rounds: Round[];
   activeRoundIndex: number | 'all';
   participantCount: number;
+  isViewOnly?: boolean;
+  onToggleViewOnly?: () => void;
   onSelectRound: (roundIndex: number | 'all') => void;
   onOpenParticipantsModal: () => void;
   onOpenExportModal: () => void;
@@ -21,6 +23,8 @@ export const Header: React.FC<HeaderProps> = ({
   rounds,
   activeRoundIndex,
   participantCount,
+  isViewOnly = false,
+  onToggleViewOnly,
   onSelectRound,
   onOpenParticipantsModal,
   onOpenExportModal,
@@ -35,9 +39,9 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="brand-section">
         <div
           className="brand-logo-container"
-          onClick={onOpenSettingsModal}
-          title="Click to edit tournament logo and details"
-          style={{ cursor: 'pointer' }}
+          onClick={!isViewOnly ? onOpenSettingsModal : undefined}
+          title={isViewOnly ? settings.title : 'Click to edit tournament logo and details'}
+          style={{ cursor: isViewOnly ? 'default' : 'pointer' }}
         >
           {settings.logoUrl ? (
             <img
@@ -50,8 +54,25 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="brand-title-input">{settings.title}</span>
+            {isViewOnly && (
+              <span
+                style={{
+                  fontSize: '0.65rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  background: 'rgba(59, 130, 246, 0.2)',
+                  color: '#60a5fa',
+                  border: '1px solid rgba(59, 130, 246, 0.4)',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                }}
+              >
+                Spectator View
+              </span>
+            )}
           </div>
           <p className="brand-subtitle">{settings.subtitle}</p>
         </div>
@@ -83,10 +104,23 @@ export const Header: React.FC<HeaderProps> = ({
           {settings.statusBadge}
         </div>
 
-        <button className="icon-btn primary" onClick={onOpenParticipantsModal}>
-          <Users size={16} />
-          <span>Teams ({participantCount})</span>
-        </button>
+        {onToggleViewOnly && (
+          <button
+            className={`icon-btn ${isViewOnly ? 'primary' : ''}`}
+            onClick={onToggleViewOnly}
+            title={isViewOnly ? 'Switch to Edit Mode' : 'Switch to Spectator / View Only Mode'}
+          >
+            {isViewOnly ? <EyeOff size={16} /> : <Eye size={16} />}
+            <span>{isViewOnly ? 'Edit Mode' : 'View Only'}</span>
+          </button>
+        )}
+
+        {!isViewOnly && (
+          <button className="icon-btn primary" onClick={onOpenParticipantsModal}>
+            <Users size={16} />
+            <span>Teams ({participantCount})</span>
+          </button>
+        )}
 
         <button className="icon-btn" onClick={onToggleFullscreen} title="Fullscreen View">
           <Maximize2 size={16} />
@@ -100,9 +134,11 @@ export const Header: React.FC<HeaderProps> = ({
           <Code size={16} />
         </button>
 
-        <button className="icon-btn" onClick={onResetBracket} title="Reset Scores">
-          <RefreshCw size={16} />
-        </button>
+        {!isViewOnly && (
+          <button className="icon-btn" onClick={onResetBracket} title="Reset Scores">
+            <RefreshCw size={16} />
+          </button>
+        )}
       </div>
     </header>
   );

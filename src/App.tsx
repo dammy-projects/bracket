@@ -53,6 +53,15 @@ export const App: React.FC = () => {
     return generateBracket(INITIAL_PARTICIPANTS, INITIAL_SETTINGS);
   });
 
+  const [isViewOnly, setIsViewOnly] = useState<boolean>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return (
+      params.get('view') === 'readonly' ||
+      params.get('mode') === 'view' ||
+      params.get('view') === 'true'
+    );
+  });
+
   const [activeRoundIndex, setActiveRoundIndex] = useState<number | 'all'>('all');
   const [highlightedParticipantId, setHighlightedParticipantId] = useState<string | null>(null);
 
@@ -233,6 +242,8 @@ export const App: React.FC = () => {
         rounds={roundNames}
         activeRoundIndex={activeRoundIndex}
         participantCount={participants.length}
+        isViewOnly={isViewOnly}
+        onToggleViewOnly={() => setIsViewOnly((prev) => !prev)}
         onSelectRound={setActiveRoundIndex}
         onOpenParticipantsModal={() => setIsParticipantsOpen(true)}
         onOpenExportModal={() => setIsExportOpen(true)}
@@ -247,6 +258,7 @@ export const App: React.FC = () => {
         rounds={roundNames}
         activeRoundIndex={activeRoundIndex}
         highlightedParticipantId={highlightedParticipantId}
+        isViewOnly={isViewOnly}
         onSelectMatch={handleSelectMatch}
         onHoverParticipant={setHighlightedParticipantId}
       />
@@ -262,6 +274,7 @@ export const App: React.FC = () => {
       <MatchScoreModal
         match={selectedMatch}
         isOpen={isMatchModalOpen}
+        isViewOnly={isViewOnly}
         onClose={() => setIsMatchModalOpen(false)}
         onSaveScore={handleSaveScore}
       />

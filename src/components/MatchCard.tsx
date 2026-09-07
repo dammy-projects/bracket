@@ -5,6 +5,7 @@ import { Trophy, Award } from 'lucide-react';
 interface MatchCardProps {
   match: Match;
   highlightedParticipantId: string | null;
+  isViewOnly?: boolean;
   onSelectMatch: (match: Match) => void;
   onHoverParticipant: (id: string | null) => void;
 }
@@ -12,6 +13,7 @@ interface MatchCardProps {
 export const MatchCard: React.FC<MatchCardProps> = ({
   match,
   highlightedParticipantId,
+  isViewOnly = false,
   onSelectMatch,
   onHoverParticipant,
 }) => {
@@ -98,7 +100,11 @@ export const MatchCard: React.FC<MatchCardProps> = ({
           isWinnerMatch ? 'is-winner' : ''
         } ${isThirdPlaceMatch ? 'third-place-card' : ''}`}
         onClick={() => onSelectMatch(match)}
-        title={`Click to set score (Best of ${match.bestOf || 3})`}
+        title={
+          isViewOnly
+            ? `Click to view match summary (Best of ${match.bestOf || 3})`
+            : `Click to set score (Best of ${match.bestOf || 3})`
+        }
       >
         {/* Series Badge Header */}
         <div

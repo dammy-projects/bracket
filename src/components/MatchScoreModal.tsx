@@ -5,6 +5,7 @@ import { X, Trophy, Check, Award } from 'lucide-react';
 interface MatchScoreModalProps {
   match: Match | null;
   isOpen: boolean;
+  isViewOnly?: boolean;
   onClose: () => void;
   onSaveScore: (
     matchId: string,
@@ -17,6 +18,7 @@ interface MatchScoreModalProps {
 export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
   match,
   isOpen,
+  isViewOnly = false,
   onClose,
   onSaveScore,
 }) => {
@@ -39,6 +41,7 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
   const targetWins = Math.ceil(bestOf / 2);
 
   const handleSelectWinner = (winnerId: string) => {
+    if (isViewOnly) return;
     setSelectedWinnerId(winnerId);
   };
 
@@ -74,7 +77,13 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
               <Trophy color="#3b82f6" size={20} />
             )}
             <h3 className="modal-title">
-              {isThirdPlace ? '3rd Place Match' : `Match #${match.matchNumber}`}
+              {isViewOnly
+                ? isThirdPlace
+                  ? '3rd Place Match Summary'
+                  : `Match #${match.matchNumber} Summary`
+                : isThirdPlace
+                ? '3rd Place Match'
+                : `Match #${match.matchNumber}`}
             </h3>
           </div>
           <button className="close-btn" onClick={onClose}>
@@ -113,9 +122,11 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
             </span>
           </div>
 
-          <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginBottom: '16px' }}>
-            Enter game scores or click a team to select the series winner:
-          </p>
+          {!isViewOnly && (
+            <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginBottom: '16px' }}>
+              Enter game scores or click a team to select the series winner:
+            </p>
+          )}
 
           {/* Participant 1 Option */}
           <div
@@ -124,7 +135,7 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
             }`}
             style={{
               borderColor: selectedWinnerId === participant1?.id ? '#10b981' : '#2d3342',
-              cursor: participant1 ? 'pointer' : 'default',
+              cursor: !isViewOnly && participant1 ? 'pointer' : 'default',
               padding: '14px',
             }}
             onClick={() => participant1 && handleSelectWinner(participant1.id)}
@@ -158,7 +169,7 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {participant1 && (
+              {participant1 && !isViewOnly && (
                 <input
                   type="number"
                   min="0"
@@ -170,6 +181,9 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
                   onChange={(e) => setScore1(e.target.value)}
                   onClick={(e) => e.stopPropagation()}
                 />
+              )}
+              {participant1 && isViewOnly && match.score1 !== null && match.score1 !== undefined && (
+                <span className="score-badge winner-score">{match.score1}</span>
               )}
               {selectedWinnerId === participant1?.id && (
                 <Check color="#10b981" size={20} />
@@ -188,7 +202,7 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
             }`}
             style={{
               borderColor: selectedWinnerId === participant2?.id ? '#10b981' : '#2d3342',
-              cursor: participant2 ? 'pointer' : 'default',
+              cursor: !isViewOnly && participant2 ? 'pointer' : 'default',
               padding: '14px',
             }}
             onClick={() => participant2 && handleSelectWinner(participant2.id)}
@@ -222,7 +236,7 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {participant2 && (
+              {participant2 && !isViewOnly && (
                 <input
                   type="number"
                   min="0"
@@ -235,6 +249,9 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
                   onClick={(e) => e.stopPropagation()}
                 />
               )}
+              {participant2 && isViewOnly && match.score2 !== null && match.score2 !== undefined && (
+                <span className="score-badge winner-score">{match.score2}</span>
+              )}
               {selectedWinnerId === participant2?.id && (
                 <Check color="#10b981" size={20} />
               )}
@@ -243,12 +260,20 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
         </div>
 
         <div className="modal-footer">
-          <button className="danger-btn" onClick={handleClear}>
-            Clear Match
-          </button>
-          <button className="icon-btn primary" onClick={handleSave}>
-            Save & Advance Winner
-          </button>
+          {isViewOnly ? (
+            <button className="icon-btn primary" onClick={onClose} style={{ width: '100%' }}>
+              Close Summary
+            </button>
+          ) : (
+            <>
+              <button className="danger-btn" onClick={handleClear}>
+                Clear Match
+              </button>
+              <button className="icon-btn primary" onClick={handleSave}>
+                Save & Advance Winner
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

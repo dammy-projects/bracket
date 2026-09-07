@@ -8,6 +8,7 @@ interface BracketCanvasProps {
   rounds: Round[];
   activeRoundIndex: number | 'all';
   highlightedParticipantId: string | null;
+  isViewOnly?: boolean;
   onSelectMatch: (match: Match) => void;
   onHoverParticipant: (id: string | null) => void;
 }
@@ -23,6 +24,7 @@ export const BracketCanvas: React.FC<BracketCanvasProps> = ({
   rounds,
   activeRoundIndex,
   highlightedParticipantId,
+  isViewOnly = false,
   onSelectMatch,
   onHoverParticipant,
 }) => {
@@ -233,6 +235,7 @@ export const BracketCanvas: React.FC<BracketCanvasProps> = ({
                   key={match.id}
                   match={match}
                   highlightedParticipantId={highlightedParticipantId}
+                  isViewOnly={isViewOnly}
                   onSelectMatch={onSelectMatch}
                   onHoverParticipant={onHoverParticipant}
                 />
