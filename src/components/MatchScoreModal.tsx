@@ -61,18 +61,20 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
     onClose();
   };
 
+  const isThirdPlace = match.isThirdPlaceMatch || match.id === 'm_3rd_place';
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {match.isThirdPlaceMatch ? (
+            {isThirdPlace ? (
               <Award color="#fbbf24" size={20} />
             ) : (
               <Trophy color="#3b82f6" size={20} />
             )}
             <h3 className="modal-title">
-              {match.isThirdPlaceMatch ? '3rd Place Match' : `Match #${match.matchNumber}`}
+              {isThirdPlace ? '3rd Place Match' : `Match #${match.matchNumber}`}
             </h3>
           </div>
           <button className="close-btn" onClick={onClose}>
@@ -84,8 +86,8 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
           {/* Series Rule Badge */}
           <div
             style={{
-              background: match.isThirdPlaceMatch ? 'rgba(245, 158, 11, 0.12)' : 'rgba(37, 99, 235, 0.12)',
-              border: `1px solid ${match.isThirdPlaceMatch ? 'rgba(245, 158, 11, 0.3)' : 'rgba(37, 99, 235, 0.3)'}`,
+              background: isThirdPlace ? 'rgba(245, 158, 11, 0.12)' : 'rgba(37, 99, 235, 0.12)',
+              border: `1px solid ${isThirdPlace ? 'rgba(245, 158, 11, 0.3)' : 'rgba(37, 99, 235, 0.3)'}`,
               padding: '10px 14px',
               borderRadius: '8px',
               marginBottom: '20px',

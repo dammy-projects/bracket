@@ -84,6 +84,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
 
   const p1IsWinner = match.winnerId && match.participant1?.id === match.winnerId;
   const p2IsWinner = match.winnerId && match.participant2?.id === match.winnerId;
+  const isThirdPlaceMatch = match.isThirdPlaceMatch || match.id === 'm_3rd_place';
 
   const isCardHighlighted =
     (match.participant1 && match.participant1.id === highlightedParticipantId) ||
@@ -95,7 +96,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
       <div
         className={`match-card ${isCardHighlighted ? 'highlighted' : ''} ${
           isWinnerMatch ? 'is-winner' : ''
-        } ${match.isThirdPlaceMatch ? 'third-place-card' : ''}`}
+        } ${isThirdPlaceMatch ? 'third-place-card' : ''}`}
         onClick={() => onSelectMatch(match)}
         title={`Click to set score (Best of ${match.bestOf || 3})`}
       >
@@ -106,17 +107,17 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '2px 8px',
-            background: match.isThirdPlaceMatch
+            background: isThirdPlaceMatch
               ? 'rgba(217, 119, 6, 0.2)'
               : 'rgba(255, 255, 255, 0.04)',
             fontSize: '0.68rem',
             fontWeight: 700,
-            color: match.isThirdPlaceMatch ? '#fbbf24' : '#9ca3af',
+            color: isThirdPlaceMatch ? '#fbbf24' : '#9ca3af',
             borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
           }}
         >
           <span>
-            {match.isThirdPlaceMatch ? (
+            {isThirdPlaceMatch ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Award size={11} color="#fbbf24" /> 3rd Place Match
               </span>

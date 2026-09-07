@@ -31,9 +31,25 @@ export const App: React.FC = () => {
     return saved ? JSON.parse(saved) : INITIAL_PARTICIPANTS;
   });
 
+  const sanitizeMatches = (rawMatches: Match[], currentSettings: TournamentSettings): Match[] => {
+    return rawMatches.map((m) => {
+      if (m.id === 'm_3rd_place' || m.isThirdPlaceMatch) {
+        return {
+          ...m,
+          isThirdPlaceMatch: true,
+          bestOf: currentSettings.thirdPlaceBestOf ?? 3,
+        };
+      }
+      return m;
+    });
+  };
+
   const [matches, setMatches] = useState<Match[]>(() => {
     const saved = localStorage.getItem('bracket_matches');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed: Match[] = JSON.parse(saved);
+      return sanitizeMatches(parsed, settings);
+    }
     return generateBracket(INITIAL_PARTICIPANTS, INITIAL_SETTINGS);
   });
 
@@ -72,7 +88,7 @@ export const App: React.FC = () => {
       const unsubscribe = subscribeToTournamentRealtime(tournamentId, async () => {
         const cloud = await fetchTournamentFromCloud(tournamentId);
         if (cloud) {
-          setMatches(cloud.matches);
+          setMatches(sanitizeMatches(cloud.matches, cloud.settings));
           setParticipants(cloud.participants);
           setSettings(cloud.settings);
         }
@@ -171,16 +187,17 @@ export const App: React.FC = () => {
   };
 
   const handleImportJson = (data: Tournament) => {
+    const newSettings = data.settings || settings;
     if (data.settings) setSettings(data.settings);
     if (data.participants) setParticipants(data.participants);
-    if (data.matches) setMatches(data.matches);
+    if (data.matches) setMatches(sanitizeMatches(data.matches, newSettings));
     autoSyncCloud(data);
   };
 
   const handleLoadCloudTournament = (cloudData: Tournament) => {
     setSettings(cloudData.settings);
     setParticipants(cloudData.participants);
-    setMatches(cloudData.matches);
+    setMatches(sanitizeMatches(cloudData.matches, cloudData.settings));
   };
 
   const totalRounds = matches.length > 0 ? Math.max(...matches.map((m) => m.roundIndex)) + 1 : 1;

@@ -142,20 +142,24 @@ export const fetchTournamentFromCloud = async (
     const pMap = new Map<string, Participant>();
     participants.forEach((p) => pMap.set(p.id, p));
 
-    const matches: Match[] = (mData || []).map((m) => ({
-      id: m.id,
-      roundIndex: m.round_index,
-      matchNumber: m.match_number,
-      participant1: m.participant1_id ? pMap.get(m.participant1_id) || null : null,
-      participant2: m.participant2_id ? pMap.get(m.participant2_id) || null : null,
-      score1: m.score1,
-      score2: m.score2,
-      winnerId: m.winner_id,
-      nextMatchId: m.next_match_id,
-      nextMatchSlot: m.next_match_slot,
-      status: m.status,
-      bestOf: m.round_index === 0 ? 3 : m.round_index === 1 ? 5 : 7,
-    }));
+    const matches: Match[] = (mData || []).map((m) => {
+      const isThird = m.id === 'm_3rd_place';
+      return {
+        id: m.id,
+        roundIndex: m.round_index,
+        matchNumber: m.match_number,
+        participant1: m.participant1_id ? pMap.get(m.participant1_id) || null : null,
+        participant2: m.participant2_id ? pMap.get(m.participant2_id) || null : null,
+        score1: m.score1,
+        score2: m.score2,
+        winnerId: m.winner_id,
+        nextMatchId: m.next_match_id,
+        nextMatchSlot: m.next_match_slot,
+        status: m.status,
+        isThirdPlaceMatch: isThird,
+        bestOf: isThird ? 3 : (m.round_index === 0 ? 3 : m.round_index === 1 ? 5 : 7),
+      };
+    });
 
     return {
       id: tourney.id,
