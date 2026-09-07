@@ -112,21 +112,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               </div>
             </div>
 
-            <div
-              style={{
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                padding: '10px 12px',
-                borderRadius: '8px',
-                fontSize: '0.78rem',
-                color: '#9ca3af',
-              }}
-            >
-              💡 <strong style={{ color: '#d1d5db' }}>Default Passcode:</strong>{' '}
-              <code style={{ background: 'rgba(255, 255, 255, 0.1)', padding: '2px 6px', borderRadius: '4px', color: '#60a5fa' }}>
-                admin123
-              </code>
-            </div>
+
           </div>
 
           <div className="modal-footer">
