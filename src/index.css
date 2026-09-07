@@ -988,3 +988,1095 @@ body {
   }
 }
 
+/* ========================================================
+   TOURNAMENT GAME MODE SWITCHER
+   ======================================================== */
+.tournament-mode-switcher {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 17, 23, 0.8);
+  padding: 4px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 4px;
+}
+
+.mode-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mode-toggle-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mode-toggle-btn.active {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
+}
+
+/* ========================================================
+   CODM BATTLE ROYALE WORKSPACE & LEADERBOARD
+   ======================================================== */
+.codm-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Meta Bar */
+.codm-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: rgba(31, 35, 45, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 20px;
+  border-radius: 12px;
+}
+
+.codm-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.codm-game-badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000000;
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.codm-info-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.codm-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Round Selection Cards Grid */
+.codm-round-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.codm-round-card {
+  background: rgba(31, 35, 45, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-primary);
+}
+
+.codm-round-card:hover {
+  background: rgba(40, 44, 55, 0.9);
+  border-color: rgba(96, 165, 250, 0.4);
+  transform: translateY(-2px);
+}
+
+.codm-round-card.active {
+  background: linear-gradient(145deg, rgba(37, 99, 235, 0.25), rgba(30, 41, 59, 0.8));
+  border-color: #3b82f6;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2);
+}
+
+.round-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.round-card-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.round-card-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.round-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  margin-top: 4px;
+}
+
+.map-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.lobby-badge {
+  background: rgba(255, 255, 255, 0.06);
+  color: #9ca3af;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.status-dot-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+.status-dot-badge.completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.status-dot-badge.live {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.status-dot-badge.scheduled {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+.quick-score-btn {
+  margin-top: 6px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-score-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+/* Podium Highlights */
+.codm-podium-section {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 16px;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+.podium-card {
+  background: rgba(31, 35, 45, 0.7);
+  border-radius: 14px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.podium-card.rank-1 {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.15) 0%, rgba(31, 35, 45, 0.9) 100%);
+  border-color: rgba(245, 158, 11, 0.5);
+  padding: 26px 18px;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+}
+
+.podium-card.rank-2 {
+  border-color: rgba(203, 213, 225, 0.3);
+}
+
+.podium-card.rank-3 {
+  border-color: rgba(180, 83, 9, 0.3);
+}
+
+.crown-icon {
+  font-size: 26px;
+  margin-bottom: -4px;
+  filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.6));
+}
+
+.podium-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #cbd5e1;
+  margin-bottom: 12px;
+}
+
+.podium-badge.gold {
+  color: #f59e0b;
+}
+
+.podium-badge.bronze {
+  color: #d97706;
+}
+
+.podium-team-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.podium-team-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gold-glow {
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+}
+
+.podium-team-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.podium-team-tag {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.podium-score-pill {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #f3f4f6;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.podium-score-pill.gold {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.podium-kills {
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+/* Standings Table */
+.codm-table-container {
+  background: rgba(31, 35, 45, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.table-header-title {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.table-header-title h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.codm-standings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.codm-standings-table th {
+  background: rgba(20, 23, 29, 0.6);
+  padding: 12px 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.codm-standings-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+
+.standings-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.standings-row.rank-first {
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.standings-row.rank-first:hover {
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.rank-indicator {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank-indicator.rank-first {
+  color: #f59e0b;
+  font-size: 1rem;
+}
+
+.rank-indicator.rank-second {
+  color: #cbd5e1;
+}
+
+.rank-indicator.rank-third {
+  color: #d97706;
+}
+
+.team-logo-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.standings-team-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wwcd-badge {
+  font-size: 0.72rem;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 1px 5px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.standings-team-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.team-tag-badge {
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #9ca3af;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.roster-preview-btn {
+  font-size: 0.72rem;
+  color: #60a5fa;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.match-col {
+  text-align: center;
+  width: 95px;
+}
+
+.match-cell-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.match-pts-val {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.match-pts-sub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.match-cell-empty {
+  color: #4b5563;
+  font-size: 0.85rem;
+}
+
+.kills-pill {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.placement-pill {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+}
+
+.total-score-pill {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 4px 12px;
+  border-radius: 10px;
+}
+
+/* Roster Drawer */
+.roster-drawer-row {
+  background: rgba(20, 23, 29, 0.5);
+}
+
+.roster-drawer-content {
+  padding: 16px 20px;
+  border-left: 3px solid #3b82f6;
+}
+
+.drawer-header {
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.drawer-player-item {
+  background: rgba(31, 35, 45, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.drawer-player-item.reserve {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.drawer-role-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #60a5fa;
+  margin-bottom: 2px;
+}
+
+.drawer-player-item.reserve .drawer-role-tag {
+  color: #f59e0b;
+}
+
+.drawer-player-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.drawer-player-ign {
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+/* Single Match Header */
+.single-match-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.placement-badge {
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.placement-badge.place-1 {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.placement-badge.place-2 {
+  background: rgba(203, 213, 225, 0.2);
+  color: #cbd5e1;
+}
+
+.placement-badge.place-3 {
+  background: rgba(180, 83, 9, 0.2);
+  color: #d97706;
+}
+
+/* ========================================================
+   CODM RULES MODAL
+   ======================================================== */
+.rule-card {
+  background: rgba(31, 35, 45, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.rule-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 6px;
+}
+
+.rule-card-header h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.rule-content {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #d1d5db;
+}
+
+.rule-bullet-list {
+  margin-left: 18px;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rule-note {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.format-item {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.format-label {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+}
+
+.format-val {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #ffffff;
+}
+
+.match-rounds-preview {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.round-pill-info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: #93c5fd;
+}
+
+.points-table-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.points-cell {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.points-cell.place-1 {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.place-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.place-pts {
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 800;
+}
+
+.kill-points-banner {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.formula-box {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: #34d399;
+}
+
+.badge-pill {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-right: 4px;
+}
+
+.main-badge {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.reserve-badge {
+  background: #f59e0b;
+  color: #000;
+}
+
+/* ========================================================
+   CODM TEAM MANAGER MODAL
+   ======================================================== */
+.codm-team-modal-layout {
+  display: flex;
+  gap: 20px;
+  min-height: 400px;
+}
+
+.codm-team-nav-list {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  padding-right: 12px;
+}
+
+.codm-team-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.codm-team-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.codm-team-nav-item.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+}
+
+.team-nav-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-nav-tag {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+}
+
+.codm-team-detail-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.team-meta-header {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.avatar-grid-compact {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.avatar-option-small {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.avatar-option-small:hover {
+  transform: scale(1.15);
+}
+
+.avatar-option-small.selected {
+  outline: 2px solid #ffffff;
+}
+
+.roster-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roster-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.roster-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roster-player-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.roster-player-card.reserve-card {
+  background: rgba(245, 158, 11, 0.04);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.player-slot-badge {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.role-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.role-tag.main {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.role-tag.reserve {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.player-inputs {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 10px;
+}
+
+/* ========================================================
+   CODM SCORE MODAL
+   ======================================================== */
+.codm-match-config-bar {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.duplicate-warning {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.codm-score-table-wrap {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.codm-score-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.codm-score-table th {
+  background: rgba(20, 23, 29, 0.6);
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.codm-score-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.row-duplicate-placement {
+  background: rgba(239, 68, 68, 0.08) !important;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+}
+
+.pts-tag {
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.placement-tag {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.total-tag {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.qty-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.qty-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================================
+   PRINT STYLES FOR CODM LEADERBOARD
+   ======================================================== */
+@media print {
+  .tournament-mode-switcher,
+  .codm-meta-bar,
+  .quick-score-btn,
+  .roster-preview-btn {
+    display: none !important;
+  }
+
+  .codm-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .codm-podium-section {
+    display: none !important; /* Standings table provides complete data */
+  }
+
+  .codm-table-container {
+    background: #ffffff !important;
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
+  }
+
+  .table-header-title {
+    background: #f3f4f6 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #000000 !important;
+  }
+
+  .codm-standings-table th {
+    background: #e5e7eb !important;
+    color: #111827 !important;
+    border-bottom: 2px solid #000000 !important;
+  }
+
+  .codm-standings-table td {
+    border-bottom: 1px solid #d1d5db !important;
+    color: #111827 !important;
+  }
+
+  .total-score-pill {
+    background: #f3f4f6 !important;
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+  }
+
+  .kills-pill, .placement-pill {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+  }
+}

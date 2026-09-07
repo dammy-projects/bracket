@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Participant, Match, TournamentSettings, Tournament } from './types/tournament';
+import { CodmTournamentSettings, CodmTeam, CodmRound } from './types/codm';
 import { INITIAL_SETTINGS, INITIAL_PARTICIPANTS } from './utils/defaultData';
+import {
+  INITIAL_CODM_SETTINGS,
+  INITIAL_CODM_TEAMS,
+  INITIAL_CODM_ROUNDS,
+} from './utils/codmDefaultData';
 import { generateBracket, setMatchWinner, getRoundNames } from './utils/bracketGenerator';
 import { safeSetLocalStorage } from './utils/imageCompressor';
 import { isSupabaseConfigured } from './lib/supabase';
@@ -18,9 +24,23 @@ import { ExportShareModal } from './components/ExportShareModal';
 import { TournamentSettingsModal } from './components/TournamentSettingsModal';
 import { SupabaseConfigModal } from './components/SupabaseConfigModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
+import { CodmLeaderboard } from './components/codm/CodmLeaderboard';
+import { CodmScoreModal } from './components/codm/CodmScoreModal';
+import { CodmTeamManagerModal } from './components/codm/CodmTeamManagerModal';
+import { CodmRulesModal } from './components/codm/CodmRulesModal';
 
 export const App: React.FC = () => {
   const tournamentId = 't_current';
+
+  // Tournament Game Mode: 'bracket' (Knockout) or 'codm' (Points Leaderboard)
+  const [tournamentMode, setTournamentMode] = useState<'bracket' | 'codm'>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const modeParam = params.get('game');
+    if (modeParam === 'codm' || modeParam === 'br') return 'codm';
+    if (modeParam === 'bracket') return 'bracket';
+    const saved = localStorage.getItem('tournament_mode');
+    return (saved as 'bracket' | 'codm') || 'codm';
+  });
 
   const [settings, setSettings] = useState<TournamentSettings>(() => {
     const saved = localStorage.getItem('bracket_settings');
@@ -31,6 +51,29 @@ export const App: React.FC = () => {
     const saved = localStorage.getItem('bracket_participants');
     return saved ? JSON.parse(saved) : INITIAL_PARTICIPANTS;
   });
+
+  // CODM Battle Royale State
+  const [codmSettings, setCodmSettings] = useState<CodmTournamentSettings>(() => {
+    const saved = localStorage.getItem('codm_settings');
+    return saved ? JSON.parse(saved) : INITIAL_CODM_SETTINGS;
+  });
+
+  const [codmTeams, setCodmTeams] = useState<CodmTeam[]>(() => {
+    const saved = localStorage.getItem('codm_teams');
+    return saved ? JSON.parse(saved) : INITIAL_CODM_TEAMS;
+  });
+
+  const [codmRounds, setCodmRounds] = useState<CodmRound[]>(() => {
+    const saved = localStorage.getItem('codm_rounds');
+    return saved ? JSON.parse(saved) : INITIAL_CODM_ROUNDS;
+  });
+
+  const [codmRoundFilter, setCodmRoundFilter] = useState<number | 'all'>('all');
+
+  // CODM Modals
+  const [isCodmRulesOpen, setIsCodmRulesOpen] = useState(false);
+  const [isCodmTeamManagerOpen, setIsCodmTeamManagerOpen] = useState(false);
+  const [selectedCodmRoundNum, setSelectedCodmRoundNum] = useState<number | null>(null);
 
   const sanitizeMatches = (rawMatches: Match[], currentSettings: TournamentSettings): Match[] => {
     return rawMatches.map((m) => {
@@ -72,7 +115,11 @@ export const App: React.FC = () => {
   const isViewOnly = isUrlViewOnly || !isAdmin;
 
   const handleAdminLogin = (inputPasscode: string): boolean => {
-    const expectedPasscode = settings.adminPasscode || 'admin123';
+    const expectedPasscode =
+      tournamentMode === 'codm'
+        ? codmSettings.adminPasscode || 'admin123'
+        : settings.adminPasscode || 'admin123';
+
     if (inputPasscode === expectedPasscode) {
       setIsAdmin(true);
       sessionStorage.setItem('bracket_admin_auth', 'true');
@@ -89,7 +136,7 @@ export const App: React.FC = () => {
   const [activeRoundIndex, setActiveRoundIndex] = useState<number | 'all'>('all');
   const [highlightedParticipantId, setHighlightedParticipantId] = useState<string | null>(null);
 
-  // Modals state
+  // Modals state for bracket
   const [isParticipantsOpen, setIsParticipantsOpen] = useState(false);
   const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
@@ -114,6 +161,18 @@ export const App: React.FC = () => {
   useEffect(() => {
     safeSetLocalStorage('bracket_matches', matches);
   }, [matches]);
+
+  useEffect(() => {
+    safeSetLocalStorage('codm_settings', codmSettings);
+  }, [codmSettings]);
+
+  useEffect(() => {
+    safeSetLocalStorage('codm_teams', codmTeams);
+  }, [codmTeams]);
+
+  useEffect(() => {
+    safeSetLocalStorage('codm_rounds', codmRounds);
+  }, [codmRounds]);
 
   // Realtime subscription setup
   useEffect(() => {
@@ -153,7 +212,7 @@ export const App: React.FC = () => {
     autoSyncCloud({ ...fullTournamentData, participants: newParticipants, matches: newMatches });
   };
 
-  // Handle settings update (e.g. changing series rules)
+  // Handle settings update
   const handleSaveSettings = (newSettings: TournamentSettings) => {
     setSettings(newSettings);
     const newMatches = generateBracket(participants, newSettings);
@@ -192,13 +251,25 @@ export const App: React.FC = () => {
     }
   };
 
-  // Reset bracket
-  const handleResetBracket = () => {
-    if (window.confirm('Reset all match scores and progress?')) {
-      const reset = generateBracket(participants, settings);
-      setMatches(reset);
-      setChampion(null);
-      autoSyncCloud({ ...fullTournamentData, matches: reset });
+  // Reset general
+  const handleResetGeneral = () => {
+    if (tournamentMode === 'bracket') {
+      if (window.confirm('Reset all match scores and knockout progress?')) {
+        const reset = generateBracket(participants, settings);
+        setMatches(reset);
+        setChampion(null);
+        autoSyncCloud({ ...fullTournamentData, matches: reset });
+      }
+    } else {
+      if (window.confirm('Reset all round scores and results for CODM Battle Royale?')) {
+        const resetRounds: CodmRound[] = codmRounds.map((r) => ({
+          ...r,
+          status: 'scheduled',
+          results: {},
+        }));
+        setCodmRounds(resetRounds);
+        safeSetLocalStorage('codm_rounds', resetRounds);
+      }
     }
   };
 
@@ -213,7 +284,11 @@ export const App: React.FC = () => {
   };
 
   const handlePrint = () => {
-    setActiveRoundIndex('all');
+    if (tournamentMode === 'bracket') {
+      setActiveRoundIndex('all');
+    } else {
+      setCodmRoundFilter('all');
+    }
     setTimeout(() => {
       window.print();
     }, 100);
@@ -236,21 +311,26 @@ export const App: React.FC = () => {
   const totalRounds = matches.length > 0 ? Math.max(...matches.map((m) => m.roundIndex)) + 1 : 1;
   const roundNames = getRoundNames(totalRounds);
 
+  const activeTitle = tournamentMode === 'bracket' ? settings.title : codmSettings.title;
+  const activeSubtitle = tournamentMode === 'bracket' ? settings.subtitle : codmSettings.subtitle;
+  const activeLogo = tournamentMode === 'bracket' ? settings.logoUrl : (codmSettings.logoUrl || settings.logoUrl);
+  const activeBadge = tournamentMode === 'bracket' ? settings.statusBadge : codmSettings.statusBadge;
+
   return (
     <div className="bracket-workspace">
       {/* Print-Only Header Banner */}
       <div className="print-only-header">
         <div className="print-header-brand">
-          {settings.logoUrl && (
-            <img src={settings.logoUrl} alt="Logo" className="print-logo" />
+          {activeLogo && (
+            <img src={activeLogo} alt="Logo" className="print-logo" />
           )}
           <div>
-            <h1 className="print-title">{settings.title}</h1>
-            {settings.subtitle && <p className="print-subtitle">{settings.subtitle}</p>}
+            <h1 className="print-title">{activeTitle}</h1>
+            {activeSubtitle && <p className="print-subtitle">{activeSubtitle}</p>}
           </div>
         </div>
         <div className="print-meta">
-          <span className="print-badge">{settings.statusBadge}</span>
+          <span className="print-badge">{activeBadge}</span>
           <span className="print-date">
             {new Date().toLocaleDateString(undefined, {
               year: 'numeric',
@@ -262,38 +342,70 @@ export const App: React.FC = () => {
       </div>
 
       <Header
-        settings={settings}
+        settings={
+          tournamentMode === 'bracket'
+            ? settings
+            : {
+                ...settings,
+                title: codmSettings.title,
+                subtitle: codmSettings.subtitle,
+                statusBadge: codmSettings.statusBadge,
+                logoUrl: codmSettings.logoUrl || settings.logoUrl,
+              }
+        }
         rounds={roundNames}
         activeRoundIndex={activeRoundIndex}
-        participantCount={participants.length}
+        participantCount={tournamentMode === 'bracket' ? participants.length : codmTeams.length}
         isAdmin={isAdmin}
+        tournamentMode={tournamentMode}
+        onSelectTournamentMode={(mode) => {
+          setTournamentMode(mode);
+          localStorage.setItem('tournament_mode', mode);
+        }}
         onOpenLoginModal={() => setIsAdminLoginOpen(true)}
         onLogout={handleAdminLogout}
         onSelectRound={setActiveRoundIndex}
         onOpenParticipantsModal={() => setIsParticipantsOpen(true)}
         onOpenExportModal={() => setIsExportOpen(true)}
         onOpenSettingsModal={() => setIsSettingsOpen(true)}
-        onResetBracket={handleResetBracket}
+        onResetBracket={handleResetGeneral}
         onToggleFullscreen={handleToggleFullscreen}
         onPrint={handlePrint}
       />
 
-      <BracketCanvas
-        matches={matches}
-        rounds={roundNames}
-        activeRoundIndex={activeRoundIndex}
-        highlightedParticipantId={highlightedParticipantId}
-        isViewOnly={isViewOnly}
-        onSelectMatch={handleSelectMatch}
-        onHoverParticipant={setHighlightedParticipantId}
-      />
+      {/* Main Content: Conditional based on tournamentMode */}
+      {tournamentMode === 'bracket' ? (
+        <BracketCanvas
+          matches={matches}
+          rounds={roundNames}
+          activeRoundIndex={activeRoundIndex}
+          highlightedParticipantId={highlightedParticipantId}
+          isViewOnly={isViewOnly}
+          onSelectMatch={handleSelectMatch}
+          onHoverParticipant={setHighlightedParticipantId}
+        />
+      ) : (
+        <CodmLeaderboard
+          settings={codmSettings}
+          teams={codmTeams}
+          rounds={codmRounds}
+          activeRoundFilter={codmRoundFilter}
+          isAdmin={isAdmin}
+          onSelectRoundFilter={setCodmRoundFilter}
+          onOpenScoreModal={(roundNum) => setSelectedCodmRoundNum(roundNum)}
+          onOpenTeamManager={() => setIsCodmTeamManagerOpen(true)}
+          onOpenRulesModal={() => setIsCodmRulesOpen(true)}
+        />
+      )}
 
-      {/* Modals */}
+      {/* Admin Login Modal */}
       <AdminLoginModal
         isOpen={isAdminLoginOpen}
         onClose={() => setIsAdminLoginOpen(false)}
         onLogin={handleAdminLogin}
       />
+
+      {/* Bracket Specific Modals */}
       <ParticipantManagerModal
         participants={participants}
         isOpen={isParticipantsOpen}
@@ -336,8 +448,42 @@ export const App: React.FC = () => {
         onClose={() => setIsSupabaseOpen(false)}
         onLoadCloudTournament={handleLoadCloudTournament}
       />
+
+      {/* CODM Specific Modals */}
+      <CodmRulesModal
+        isOpen={isCodmRulesOpen}
+        onClose={() => setIsCodmRulesOpen(false)}
+        dateText={codmSettings.dateText}
+      />
+
+      <CodmTeamManagerModal
+        teams={codmTeams}
+        isOpen={isCodmTeamManagerOpen}
+        onClose={() => setIsCodmTeamManagerOpen(false)}
+        onUpdateTeams={(updated) => {
+          setCodmTeams(updated);
+          safeSetLocalStorage('codm_teams', updated);
+        }}
+      />
+
+      <CodmScoreModal
+        round={codmRounds.find((r) => r.roundNumber === selectedCodmRoundNum) || null}
+        allRounds={codmRounds}
+        teams={codmTeams}
+        isOpen={selectedCodmRoundNum !== null}
+        onClose={() => setSelectedCodmRoundNum(null)}
+        onSelectRoundIndex={(num) => setSelectedCodmRoundNum(num)}
+        onSaveRoundScores={(updatedRound) => {
+          const updated = codmRounds.map((r) =>
+            r.roundNumber === updatedRound.roundNumber ? updatedRound : r
+          );
+          setCodmRounds(updated);
+          safeSetLocalStorage('codm_rounds', updated);
+        }}
+      />
     </div>
   );
 };
 
 export default App;
+

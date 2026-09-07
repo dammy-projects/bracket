@@ -8,6 +8,8 @@ interface HeaderProps {
   activeRoundIndex: number | 'all';
   participantCount: number;
   isAdmin: boolean;
+  tournamentMode: 'bracket' | 'codm';
+  onSelectTournamentMode: (mode: 'bracket' | 'codm') => void;
   onOpenLoginModal: () => void;
   onLogout: () => void;
   onSelectRound: (roundIndex: number | 'all') => void;
@@ -25,6 +27,8 @@ export const Header: React.FC<HeaderProps> = ({
   activeRoundIndex,
   participantCount,
   isAdmin,
+  tournamentMode,
+  onSelectTournamentMode,
   onOpenLoginModal,
   onLogout,
   onSelectRound,
@@ -41,9 +45,9 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="brand-section">
         <div
           className="brand-logo-container"
-          onClick={isAdmin ? onOpenSettingsModal : undefined}
-          title={isAdmin ? 'Click to edit tournament logo and details' : settings.title}
-          style={{ cursor: isAdmin ? 'pointer' : 'default' }}
+          onClick={isAdmin && tournamentMode === 'bracket' ? onOpenSettingsModal : undefined}
+          title={isAdmin ? 'Click to edit tournament details' : settings.title}
+          style={{ cursor: isAdmin && tournamentMode === 'bracket' ? 'pointer' : 'default' }}
         >
           {settings.logoUrl ? (
             <img
@@ -102,24 +106,46 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Round Filter Tabs */}
-      <div className="tabs-container">
+      {/* Tournament Game Mode Switcher */}
+      <div className="tournament-mode-switcher">
         <button
-          className={`tab-btn ${activeRoundIndex === 'all' ? 'active' : ''}`}
-          onClick={() => onSelectRound('all')}
+          type="button"
+          className={`mode-toggle-btn ${tournamentMode === 'bracket' ? 'active' : ''}`}
+          onClick={() => onSelectTournamentMode('bracket')}
+          title="Knockout Single Elimination Bracket"
         >
-          All Rounds
+          <span>⚔️ Knockout Bracket</span>
         </button>
-        {rounds.map((round) => (
-          <button
-            key={round.index}
-            className={`tab-btn ${activeRoundIndex === round.index ? 'active' : ''}`}
-            onClick={() => onSelectRound(round.index)}
-          >
-            {round.name}
-          </button>
-        ))}
+        <button
+          type="button"
+          className={`mode-toggle-btn ${tournamentMode === 'codm' ? 'active' : ''}`}
+          onClick={() => onSelectTournamentMode('codm')}
+          title="Call of Duty: Mobile Battle Royale (Points & Leaderboard)"
+        >
+          <span>🪂 CODM Battle Royale</span>
+        </button>
       </div>
+
+      {/* Bracket Round Filter Tabs (Only shown in bracket mode) */}
+      {tournamentMode === 'bracket' && (
+        <div className="tabs-container">
+          <button
+            className={`tab-btn ${activeRoundIndex === 'all' ? 'active' : ''}`}
+            onClick={() => onSelectRound('all')}
+          >
+            All Rounds
+          </button>
+          {rounds.map((round) => (
+            <button
+              key={round.index}
+              className={`tab-btn ${activeRoundIndex === round.index ? 'active' : ''}`}
+              onClick={() => onSelectRound(round.index)}
+            >
+              {round.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Actions Bar */}
       <div className="header-actions">
@@ -130,15 +156,19 @@ export const Header: React.FC<HeaderProps> = ({
 
         {isAdmin ? (
           <>
-            <button className="icon-btn primary" onClick={onOpenParticipantsModal}>
-              <Users size={16} />
-              <span>Teams ({participantCount})</span>
-            </button>
+            {tournamentMode === 'bracket' ? (
+              <>
+                <button className="icon-btn primary" onClick={onOpenParticipantsModal}>
+                  <Users size={16} />
+                  <span>Teams ({participantCount})</span>
+                </button>
 
-            <button className="icon-btn" onClick={onOpenSettingsModal} title="Tournament Settings">
-              <SettingsIcon size={16} />
-              <span>Settings</span>
-            </button>
+                <button className="icon-btn" onClick={onOpenSettingsModal} title="Tournament Settings">
+                  <SettingsIcon size={16} />
+                  <span>Settings</span>
+                </button>
+              </>
+            ) : null}
           </>
         ) : (
           <button className="icon-btn primary" onClick={onOpenLoginModal} title="Log in as Organizer Admin">
@@ -151,13 +181,15 @@ export const Header: React.FC<HeaderProps> = ({
           <Maximize2 size={16} />
         </button>
 
-        <button className="icon-btn" onClick={onPrint} title="Print Bracket">
+        <button className="icon-btn" onClick={onPrint} title="Print / Export PDF">
           <Printer size={16} />
         </button>
 
-        <button className="icon-btn" onClick={onOpenExportModal} title="Share & Embed">
-          <Code size={16} />
-        </button>
+        {tournamentMode === 'bracket' && (
+          <button className="icon-btn" onClick={onOpenExportModal} title="Share & Embed">
+            <Code size={16} />
+          </button>
+        )}
 
         {isAdmin && (
           <button className="icon-btn danger" onClick={onResetBracket} title="Reset Scores">
