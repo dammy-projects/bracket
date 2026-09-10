@@ -22,7 +22,6 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
     tag: 'BSCJ',
     seed: 1,
     avatarColor: '#ef4444',
-    avatarIcon: '🐂',
     players: [
       { id: 'p_1_1', name: 'Player 1', ign: 'BSCJ-Ace', role: 'main' },
       { id: 'p_1_2', name: 'Player 2', ign: 'BSCJ-Reaper', role: 'main' },
@@ -37,7 +36,6 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
     tag: 'BSHM',
     seed: 2,
     avatarColor: '#8b5cf6',
-    avatarIcon: '👑',
     players: [
       { id: 'p_2_1', name: 'Player 1', ign: 'BSHM-Titan', role: 'main' },
       { id: 'p_2_2', name: 'Player 2', ign: 'BSHM-Chef', role: 'main' },
@@ -52,7 +50,6 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
     tag: 'BECED',
     seed: 3,
     avatarColor: '#a855f7',
-    avatarIcon: '🐋',
     players: [
       { id: 'p_3_1', name: 'Player 1', ign: 'BECED-Orca1', role: 'main' },
       { id: 'p_3_2', name: 'Player 2', ign: 'BECED-Wave', role: 'main' },
@@ -67,7 +64,6 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
     tag: 'BEED',
     seed: 4,
     avatarColor: '#f59e0b',
-    avatarIcon: '🔥',
     players: [
       { id: 'p_4_1', name: 'Player 1', ign: 'BEED-Ignite', role: 'main' },
       { id: 'p_4_2', name: 'Player 2', ign: 'BEED-Flare', role: 'main' },
@@ -82,7 +78,6 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
     tag: 'BAP',
     seed: 5,
     avatarColor: '#6366f1',
-    avatarIcon: '🛡️',
     players: [
       { id: 'p_5_1', name: 'Player 1', ign: 'BAP-Aegis', role: 'main' },
       { id: 'p_5_2', name: 'Player 2', ign: 'BAP-Iron', role: 'main' },
@@ -97,7 +92,6 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
     tag: 'BPA',
     seed: 6,
     avatarColor: '#64748b',
-    avatarIcon: '🐺',
     players: [
       { id: 'p_6_1', name: 'Player 1', ign: 'BPA-Alpha', role: 'main' },
       { id: 'p_6_2', name: 'Player 2', ign: 'BPA-Fang', role: 'main' },
@@ -112,7 +106,6 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
     tag: 'BSEntrep',
     seed: 7,
     avatarColor: '#eab308',
-    avatarIcon: '🐝',
     players: [
       { id: 'p_7_1', name: 'Player 1', ign: 'ENT-Stinger', role: 'main' },
       { id: 'p_7_2', name: 'Player 2', ign: 'ENT-Swarm', role: 'main' },
@@ -127,7 +120,6 @@ export const INITIAL_CODM_TEAMS: CodmTeam[] = [
     tag: 'BSIT',
     seed: 8,
     avatarColor: '#10b981',
-    avatarIcon: '🐍',
     players: [
       { id: 'p_8_1', name: 'Player 1', ign: 'BSIT-Python', role: 'main' },
       { id: 'p_8_2', name: 'Player 2', ign: 'BSIT-Byte', role: 'main' },

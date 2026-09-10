@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Participant } from '../types/tournament';
 import { PRESET_AVATARS } from '../utils/defaultData';
 import { uploadLogoToSupabaseStorage } from '../services/supabaseService';
+import { compressImageFile } from '../utils/imageCompressor';
+import { TeamBadge } from './common/TeamBadge';
 import { EditTeamModal } from './EditTeamModal';
 import { X, Plus, Trash2, Upload, Shuffle, Pencil } from 'lucide-react';
 
@@ -34,18 +36,15 @@ export const ParticipantManagerModal: React.FC<ParticipantManagerModalProps> = (
   if (!isOpen) return null;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const rawFile = e.target.files?.[0];
+    if (rawFile) {
       setIsUploading(true);
+      const { file, dataUrl } = await compressImageFile(rawFile);
       const publicUrl = await uploadLogoToSupabaseStorage(file, 'new_team_logo');
       if (publicUrl) {
         setLogoUrl(publicUrl);
       } else {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setLogoUrl(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        setLogoUrl(dataUrl);
       }
       setIsUploading(false);
     }
@@ -62,7 +61,6 @@ export const ParticipantManagerModal: React.FC<ParticipantManagerModalProps> = (
       seed: participants.length + 1,
       logoUrl: logoUrl || undefined,
       avatarColor: selectedAvatar.color,
-      avatarIcon: selectedAvatar.icon,
     };
 
     onUpdateParticipants([...participants, newParticipant]);
@@ -198,22 +196,36 @@ export const ParticipantManagerModal: React.FC<ParticipantManagerModalProps> = (
 
                   {!logoUrl && (
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                        Or choose a preset mascot logo:
+                      <span style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '8px' }}>
+                        Or choose a team theme color:
                       </span>
-                      <div className="avatar-grid">
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {PRESET_AVATARS.map((avatar) => (
-                          <div
+                          <button
                             key={avatar.id}
+                            type="button"
                             className={`avatar-option ${
                               selectedAvatar.id === avatar.id ? 'selected' : ''
                             }`}
-                            style={{ backgroundColor: avatar.color }}
+                            style={{
+                              backgroundColor: avatar.color,
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '8px',
+                              border: selectedAvatar.id === avatar.id ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.2)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              boxShadow: selectedAvatar.id === avatar.id ? '0 0 8px rgba(255,255,255,0.4)' : 'none',
+                            }}
                             onClick={() => setSelectedAvatar(avatar)}
                             title={avatar.label}
                           >
-                            {avatar.icon}
-                          </div>
+                            {selectedAvatar.id === avatar.id && (
+                              <span style={{ color: '#ffffff', fontSize: '13px', fontWeight: 'bold' }}>✓</span>
+                            )}
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -276,16 +288,13 @@ export const ParticipantManagerModal: React.FC<ParticipantManagerModalProps> = (
                 <div key={p.id} className="participant-item-row">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span className="seed-badge">{p.seed}</span>
-                    {p.logoUrl ? (
-                      <img src={p.logoUrl} alt={p.name} className="team-logo" />
-                    ) : (
-                      <span
-                        className="team-logo"
-                        style={{ backgroundColor: p.avatarColor || '#3b82f6' }}
-                      >
-                        {p.avatarIcon || '🏆'}
-                      </span>
-                    )}
+                    <TeamBadge
+                      logoUrl={p.logoUrl}
+                      name={p.name}
+                      tag={p.tag}
+                      color={p.avatarColor}
+                      size={28}
+                    />
                     <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
                       {p.name} {p.tag ? `- ${p.tag}` : ''}
                     </span>

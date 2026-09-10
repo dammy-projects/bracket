@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Participant } from '../types/tournament';
+import { TeamBadge } from './common/TeamBadge';
 import { PRESET_AVATARS } from '../utils/defaultData';
 import { uploadLogoToSupabaseStorage } from '../services/supabaseService';
 import { compressImageFile } from '../utils/imageCompressor';
@@ -110,35 +111,13 @@ export const EditTeamModal: React.FC<EditTeamModalProps> = ({
                 border: '1px solid rgba(255, 255, 255, 0.06)',
               }}
             >
-              {logoUrl ? (
-                <img
-                  src={logoUrl}
-                  alt={name}
-                  style={{
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: '10px',
-                    objectFit: 'cover',
-                    border: '2px solid #3b82f6',
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: '10px',
-                    backgroundColor: selectedAvatar.color,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '32px',
-                    border: '2px solid rgba(255, 255, 255, 0.2)',
-                  }}
-                >
-                  {selectedAvatar.icon}
-                </div>
-              )}
+              <TeamBadge
+                logoUrl={logoUrl}
+                name={name}
+                tag={tag}
+                color={selectedAvatar.color}
+                size={60}
+              />
 
               <div>
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700 }}>
@@ -220,27 +199,39 @@ export const EditTeamModal: React.FC<EditTeamModalProps> = ({
               />
             </div>
 
-            {/* Preset Mascot Selection */}
-            {!logoUrl && (
-              <div className="form-group">
-                <label className="form-label">Preset Mascot Logo & Theme</label>
-                <div className="avatar-grid">
-                  {PRESET_AVATARS.map((avatar) => (
-                    <div
-                      key={avatar.id}
-                      className={`avatar-option ${
-                        selectedAvatar.id === avatar.id ? 'selected' : ''
-                      }`}
-                      style={{ backgroundColor: avatar.color }}
-                      onClick={() => setSelectedAvatar(avatar)}
-                      title={avatar.label}
-                    >
-                      {avatar.icon}
-                    </div>
-                  ))}
-                </div>
+            {/* Color Theme Selection */}
+            <div className="form-group">
+              <label className="form-label">Team Color Theme</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {PRESET_AVATARS.map((avatar) => (
+                  <button
+                    key={avatar.id}
+                    type="button"
+                    className={`avatar-option ${
+                      selectedAvatar.id === avatar.id ? 'selected' : ''
+                    }`}
+                    style={{
+                      backgroundColor: avatar.color,
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '8px',
+                      border: selectedAvatar.id === avatar.id ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: selectedAvatar.id === avatar.id ? '0 0 10px rgba(255,255,255,0.5)' : 'none',
+                    }}
+                    onClick={() => setSelectedAvatar(avatar)}
+                    title={avatar.label}
+                  >
+                    {selectedAvatar.id === avatar.id && (
+                      <span style={{ color: '#ffffff', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                    )}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
           </div>
 
           <div className="modal-footer">

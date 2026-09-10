@@ -1,5 +1,6 @@
 import React from 'react';
 import { Match, Participant } from '../types/tournament';
+import { TeamBadge } from './common/TeamBadge';
 import { Trophy, Award } from 'lucide-react';
 
 interface MatchCardProps {
@@ -36,23 +37,14 @@ export const MatchCard: React.FC<MatchCardProps> = ({
         <div className="participant-info">
           {participant ? (
             <>
-              <span className="seed-badge">{participant.seed}</span>
-              {participant.logoUrl ? (
-                <img
-                  src={participant.logoUrl}
-                  alt={participant.name}
-                  className="team-logo"
-                />
-              ) : (
-                <span
-                  className="team-logo"
-                  style={{
-                    backgroundColor: participant.avatarColor || '#3b82f6',
-                  }}
-                >
-                  {participant.avatarIcon || '🏆'}
-                </span>
-              )}
+              <TeamBadge
+                logoUrl={participant.logoUrl}
+                name={participant.name}
+                tag={participant.tag}
+                color={participant.avatarColor}
+                size={26}
+                className="team-logo"
+              />
               <div className="participant-name-container">
                 <span
                   className="participant-name"

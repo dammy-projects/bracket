@@ -14,20 +14,20 @@ export const INITIAL_SETTINGS: TournamentSettings = {
   adminPasscode: 'admin123',
 };
 
-// Preset logo icons and colors for team builder
+// Preset colors for team builder
 export const PRESET_AVATARS = [
-  { id: 'bull', label: 'Bulls', color: '#ef4444', icon: '🐂' },
-  { id: 'python', label: 'Python', color: '#10b981', icon: '🐍' },
-  { id: 'phoenix', label: 'Phoenix', color: '#f59e0b', icon: '🔥' },
-  { id: 'shield', label: 'Shield', color: '#6366f1', icon: '🛡️' },
-  { id: 'crown', label: 'Titans', color: '#8b5cf6', icon: '👑' },
-  { id: 'hornet', label: 'Hornets', color: '#eab308', icon: '🐝' },
-  { id: 'orca', label: 'Orca', color: '#a855f7', icon: '🐋' },
-  { id: 'wolf', label: 'Wolves', color: '#64748b', icon: '🐺' },
-  { id: 'dragon', label: 'Dragon', color: '#ec4899', icon: '🐉' },
-  { id: 'eagle', label: 'Eagle', color: '#06b6d4', icon: '🦅' },
-  { id: 'tiger', label: 'Tiger', color: '#f97316', icon: '🐅' },
-  { id: 'lightning', label: 'Thunder', color: '#3b82f6', icon: '⚡' },
+  { id: 'red', label: 'Crimson Red', color: '#ef4444', icon: '' },
+  { id: 'emerald', label: 'Emerald Green', color: '#10b981', icon: '' },
+  { id: 'amber', label: 'Amber Orange', color: '#f59e0b', icon: '' },
+  { id: 'indigo', label: 'Indigo Blue', color: '#6366f1', icon: '' },
+  { id: 'purple', label: 'Royal Purple', color: '#8b5cf6', icon: '' },
+  { id: 'yellow', label: 'Cyber Yellow', color: '#eab308', icon: '' },
+  { id: 'violet', label: 'Deep Violet', color: '#a855f7', icon: '' },
+  { id: 'slate', label: 'Slate Gray', color: '#64748b', icon: '' },
+  { id: 'pink', label: 'Neon Pink', color: '#ec4899', icon: '' },
+  { id: 'cyan', label: 'Electric Cyan', color: '#06b6d4', icon: '' },
+  { id: 'orange', label: 'Blaze Orange', color: '#f97316', icon: '' },
+  { id: 'blue', label: 'Sky Blue', color: '#3b82f6', icon: '' },
 ];
 
 export const INITIAL_PARTICIPANTS: Participant[] = [
@@ -37,7 +37,6 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     tag: 'BSCJ',
     seed: 1,
     avatarColor: '#ef4444',
-    avatarIcon: '🐂',
   },
   {
     id: 'p2',
@@ -45,7 +44,6 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     tag: 'BSHM',
     seed: 2,
     avatarColor: '#8b5cf6',
-    avatarIcon: '👑',
   },
   {
     id: 'p3',
@@ -53,7 +51,6 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     tag: 'BECED',
     seed: 3,
     avatarColor: '#a855f7',
-    avatarIcon: '🐋',
   },
   {
     id: 'p4',
@@ -61,7 +58,6 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     tag: 'BEED',
     seed: 4,
     avatarColor: '#f59e0b',
-    avatarIcon: '🔥',
   },
   {
     id: 'p5',
@@ -69,7 +65,6 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     tag: 'BAP',
     seed: 5,
     avatarColor: '#6366f1',
-    avatarIcon: '🛡️',
   },
   {
     id: 'p6',
@@ -77,7 +72,6 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     tag: 'BPA',
     seed: 6,
     avatarColor: '#64748b',
-    avatarIcon: '🐺',
   },
   {
     id: 'p7',
@@ -85,7 +79,6 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     tag: 'BSEntrep',
     seed: 7,
     avatarColor: '#eab308',
-    avatarIcon: '🐝',
   },
   {
     id: 'p8',
@@ -93,6 +86,5 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
     tag: 'BSIT',
     seed: 8,
     avatarColor: '#10b981',
-    avatarIcon: '🐍',
   },
 ];

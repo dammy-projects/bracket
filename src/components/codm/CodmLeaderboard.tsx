@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   CodmTeam,
   CodmRound,
@@ -6,6 +6,7 @@ import {
   CodmTeamStanding,
 } from '../../types/codm';
 import { computeOverallStandings } from '../../utils/codmCalculator';
+import { TeamBadge } from '../common/TeamBadge';
 import {
   Trophy,
   Target,
@@ -14,6 +15,10 @@ import {
   Award,
   MapPin,
   Flame,
+  Shield,
+  UserCheck,
+  ChevronRight,
+  Sparkles,
 } from 'lucide-react';
 
 interface CodmLeaderboardProps {
@@ -67,6 +72,7 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
     : [];
 
   const top3 = standings.slice(0, 3);
+  const [viewMode, setViewMode] = useState<'standings' | 'rosters'>('standings');
 
   return (
     <div className="codm-container">
@@ -86,13 +92,31 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
           </div>
 
           <div className="codm-meta-right">
+            <div className="tabs-container" style={{ display: 'inline-flex', marginRight: '6px' }}>
+              <button
+                type="button"
+                className={`tab-btn ${viewMode === 'standings' ? 'active' : ''}`}
+                style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                onClick={() => setViewMode('standings')}
+              >
+                🏆 Standings
+              </button>
+              <button
+                type="button"
+                className={`tab-btn ${viewMode === 'rosters' ? 'active' : ''}`}
+                style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                onClick={() => setViewMode('rosters')}
+              >
+                👥 Squad Rosters (5/team)
+              </button>
+            </div>
             <button className="icon-btn" onClick={onOpenRulesModal}>
-              <span>📜 Official Rules & Scoring</span>
+              <span>📜 Rules</span>
             </button>
             {isAdmin && (
               <button className="icon-btn primary" onClick={onOpenTeamManager}>
                 <Users size={16} />
-                <span>Squad Rosters (5/team)</span>
+                <span>Manage Rosters</span>
               </button>
             )}
           </div>
@@ -161,12 +185,14 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
             {top3[1] && (
               <div className="podium-card rank-2">
                 <div className="podium-badge">🥈 2ND PLACE</div>
-                <div className="podium-team-logo" style={{ backgroundColor: top3[1].team.avatarColor || '#64748b' }}>
-                  {top3[1].team.logoUrl ? (
-                    <img src={top3[1].team.logoUrl} alt={top3[1].team.name} />
-                  ) : (
-                    <span>{top3[1].team.avatarIcon || '👑'}</span>
-                  )}
+                <div className="podium-team-logo" style={{ background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <TeamBadge
+                    logoUrl={top3[1].team.logoUrl}
+                    name={top3[1].team.name}
+                    tag={top3[1].team.tag}
+                    color={top3[1].team.avatarColor}
+                    size={48}
+                  />
                 </div>
                 <div className="podium-team-name">{top3[1].team.name}</div>
                 {top3[1].team.tag && <div className="podium-team-tag">{top3[1].team.tag}</div>}
@@ -182,12 +208,14 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
               <div className="podium-card rank-1">
                 <div className="crown-icon">👑</div>
                 <div className="podium-badge gold">🥇 TOURNAMENT LEADER</div>
-                <div className="podium-team-logo gold-glow" style={{ backgroundColor: top3[0].team.avatarColor || '#f59e0b' }}>
-                  {top3[0].team.logoUrl ? (
-                    <img src={top3[0].team.logoUrl} alt={top3[0].team.name} />
-                  ) : (
-                    <span>{top3[0].team.avatarIcon || '🐂'}</span>
-                  )}
+                <div className="podium-team-logo gold-glow" style={{ background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <TeamBadge
+                    logoUrl={top3[0].team.logoUrl}
+                    name={top3[0].team.name}
+                    tag={top3[0].team.tag}
+                    color={top3[0].team.avatarColor}
+                    size={56}
+                  />
                 </div>
                 <div className="podium-team-name">{top3[0].team.name}</div>
                 {top3[0].team.tag && <div className="podium-team-tag">{top3[0].team.tag}</div>}
@@ -202,12 +230,14 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
             {top3[2] && (
               <div className="podium-card rank-3">
                 <div className="podium-badge bronze">🥉 3RD PLACE</div>
-                <div className="podium-team-logo" style={{ backgroundColor: top3[2].team.avatarColor || '#b45309' }}>
-                  {top3[2].team.logoUrl ? (
-                    <img src={top3[2].team.logoUrl} alt={top3[2].team.name} />
-                  ) : (
-                    <span>{top3[2].team.avatarIcon || '🛡️'}</span>
-                  )}
+                <div className="podium-team-logo" style={{ background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <TeamBadge
+                    logoUrl={top3[2].team.logoUrl}
+                    name={top3[2].team.name}
+                    tag={top3[2].team.tag}
+                    color={top3[2].team.avatarColor}
+                    size={48}
+                  />
                 </div>
                 <div className="podium-team-name">{top3[2].team.name}</div>
                 {top3[2].team.tag && <div className="podium-team-tag">{top3[2].team.tag}</div>}
@@ -220,8 +250,126 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
           </div>
         )}
 
-        {/* VIEW 1: Cumulative Overall Standings Table */}
-        {activeRoundFilter === 'all' ? (
+        {/* VIEW: Squad Rosters OR Match Standings */}
+        {viewMode === 'rosters' ? (
+          <div className="codm-table-container">
+            <div className="table-header-title" style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Users size={20} color="#3b82f6" />
+                <h3>Official Registered Squad Rosters (5 Players / Team)</h3>
+              </div>
+              <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+                Each squad requires 4 Main Players + 1 Reserve Player
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gap: '16px',
+              }}
+            >
+              {teams.map((team, idx) => (
+                <div
+                  key={team.id}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span className="seed-badge">#{idx + 1}</span>
+                      <TeamBadge
+                        logoUrl={team.logoUrl}
+                        name={team.name}
+                        tag={team.tag}
+                        color={team.avatarColor}
+                        size={40}
+                      />
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '1rem', color: '#ffffff' }}>{team.name}</div>
+                        {team.tag && (
+                          <span className="team-tag-badge" style={{ fontSize: '0.7rem' }}>
+                            {team.tag}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        style={{ fontSize: '0.7rem', padding: '4px 8px' }}
+                        onClick={onOpenTeamManager}
+                      >
+                        <Edit3 size={12} />
+                        <span>Edit</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* 5-Player Squad List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {[0, 1, 2, 3, 4].map((slotIdx) => {
+                      const p = team.players?.[slotIdx] || {
+                        id: `p_${team.id}_${slotIdx + 1}`,
+                        name: `Player ${slotIdx + 1}`,
+                        ign: '',
+                        role: slotIdx === 4 ? 'reserve' : 'main',
+                      };
+                      const isRes = slotIdx === 4;
+
+                      return (
+                        <div
+                          key={slotIdx}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '6px 10px',
+                            borderRadius: '6px',
+                            background: isRes ? 'rgba(239, 68, 68, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                            border: isRes ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(255, 255, 255, 0.04)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span
+                              style={{
+                                fontSize: '0.65rem',
+                                fontWeight: 700,
+                                padding: '2px 5px',
+                                borderRadius: '4px',
+                                background: isRes ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)',
+                                color: isRes ? '#f87171' : '#60a5fa',
+                              }}
+                            >
+                              {isRes ? 'SUB' : `#${slotIdx + 1}`}
+                            </span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e5e7eb' }}>
+                              {p.name || `Player ${slotIdx + 1}`}
+                            </span>
+                          </div>
+
+                          <div style={{ fontSize: '0.75rem', color: '#93c5fd' }}>
+                            {p.ign ? `IGN: ${p.ign}` : <span style={{ color: '#6b7280', fontStyle: 'italic' }}>No IGN</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : activeRoundFilter === 'all' ? (
           <div className="codm-table-container">
             <div className="table-header-title">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -270,16 +418,13 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                       {/* Team Info Cell */}
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          {row.team.logoUrl ? (
-                            <img src={row.team.logoUrl} alt={row.team.name} className="team-logo-small" />
-                          ) : (
-                            <span
-                              className="team-logo-small"
-                              style={{ backgroundColor: row.team.avatarColor || '#3b82f6' }}
-                            >
-                              {row.team.avatarIcon || '🛡️'}
-                            </span>
-                          )}
+                          <TeamBadge
+                            logoUrl={row.team.logoUrl}
+                            name={row.team.name}
+                            tag={row.team.tag}
+                            color={row.team.avatarColor}
+                            size={32}
+                          />
                           <div>
                             <div className="standings-team-name">
                               {row.team.name}
@@ -289,11 +434,26 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                                 </span>
                               )}
                             </div>
-                            {row.team.tag && (
-                              <div className="standings-team-sub">
+                            <div className="standings-team-sub" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {row.team.tag && (
                                 <span className="team-tag-badge">{row.team.tag}</span>
-                              </div>
-                            )}
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setViewMode('rosters')}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: '#60a5fa',
+                                  fontSize: '0.7rem',
+                                  cursor: 'pointer',
+                                  padding: 0,
+                                  textDecoration: 'underline',
+                                }}
+                              >
+                                View Squad
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -393,16 +553,13 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
 
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          {row.team.logoUrl ? (
-                            <img src={row.team.logoUrl} alt={row.team.name} className="team-logo-small" />
-                          ) : (
-                            <span
-                              className="team-logo-small"
-                              style={{ backgroundColor: row.team.avatarColor || '#3b82f6' }}
-                            >
-                              {row.team.avatarIcon || '🛡️'}
-                            </span>
-                          )}
+                          <TeamBadge
+                            logoUrl={row.team.logoUrl}
+                            name={row.team.name}
+                            tag={row.team.tag}
+                            color={row.team.avatarColor}
+                            size={32}
+                          />
                           <div>
                             <span style={{ fontWeight: 600 }}>{row.team.name}</span>
                             {row.team.tag && (
@@ -531,20 +688,14 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                     </td>
                     <td className="col-team">
                       <div className="print-team-cell">
-                        {row.team.logoUrl ? (
-                          <img
-                            src={row.team.logoUrl}
-                            alt={row.team.name}
-                            className="print-team-logo"
-                          />
-                        ) : (
-                          <span
-                            className="print-team-logo icon"
-                            style={{ backgroundColor: row.team.avatarColor || '#3b82f6' }}
-                          >
-                            {row.team.avatarIcon || '🏆'}
-                          </span>
-                        )}
+                        <TeamBadge
+                          logoUrl={row.team.logoUrl}
+                          name={row.team.name}
+                          tag={row.team.tag}
+                          color={row.team.avatarColor}
+                          size={30}
+                          className="print-team-logo"
+                        />
                         <div className="print-team-details">
                           <span className="print-team-name">{row.team.name}</span>
                           {row.team.tag && (

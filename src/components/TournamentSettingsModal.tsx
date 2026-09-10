@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TournamentSettings } from '../types/tournament';
 import { uploadLogoToSupabaseStorage } from '../services/supabaseService';
+import { compressImageFile } from '../utils/imageCompressor';
 import { X, Upload, Save, Loader2 } from 'lucide-react';
 
 interface TournamentSettingsModalProps {
@@ -31,18 +32,15 @@ export const TournamentSettingsModal: React.FC<TournamentSettingsModalProps> = (
   if (!isOpen) return null;
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const rawFile = e.target.files?.[0];
+    if (rawFile) {
       setIsUploading(true);
+      const { file, dataUrl } = await compressImageFile(rawFile, 300, 300, 0.85);
       const publicUrl = await uploadLogoToSupabaseStorage(file, 'tournament_logo');
       if (publicUrl) {
         setLogoUrl(publicUrl);
       } else {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setLogoUrl(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        setLogoUrl(dataUrl);
       }
       setIsUploading(false);
     }

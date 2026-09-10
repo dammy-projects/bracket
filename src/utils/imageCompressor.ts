@@ -7,11 +7,11 @@ export const safeSetLocalStorage = (key: string, data: any): void => {
   } catch (err) {
     console.warn(`LocalStorage quota exceeded for ${key}. Attempting payload optimization...`);
     try {
-      // Strip large data:image URLs to save space
+      // Only strip extremely large uncompressed images (> 80KB) so optimized compressed logos are preserved
       const sanitized = JSON.parse(
         JSON.stringify(data, (k, val) => {
-          if (typeof val === 'string' && val.startsWith('data:image/') && val.length > 5000) {
-            return undefined; // strip heavy base64 strings in local storage backup
+          if (typeof val === 'string' && val.startsWith('data:image/') && val.length > 80000) {
+            return undefined;
           }
           return val;
         })
@@ -24,13 +24,13 @@ export const safeSetLocalStorage = (key: string, data: any): void => {
 };
 
 /**
- * Resizes an uploaded image File to max 300x300 canvas to prevent huge base64 strings
+ * Resizes an uploaded image File to max 200x200 canvas to produce lightweight, high-performance logos (~10-20KB)
  */
 export const compressImageFile = (
   file: File,
-  maxWidth: number = 300,
-  maxHeight: number = 300,
-  quality: number = 0.85
+  maxWidth: number = 200,
+  maxHeight: number = 200,
+  quality: number = 0.8
 ): Promise<{ file: File; dataUrl: string }> => {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -63,7 +63,7 @@ export const compressImageFile = (
 
           canvas.toBlob((blob) => {
             if (blob) {
-              const compressedFile = new File([blob], file.name, {
+              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '') + '.jpg', {
                 type: 'image/jpeg',
                 lastModified: Date.now(),
               });

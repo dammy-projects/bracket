@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CodmRound, CodmTeam, CodmMatchResult, CODM_PLACEMENT_POINTS } from '../../types/codm';
 import { calculateMatchPoints } from '../../utils/codmCalculator';
+import { TeamBadge } from '../common/TeamBadge';
 import { CODM_MAPS } from '../../utils/codmDefaultData';
 import { X, Dices, Save, AlertTriangle, CheckCircle2, Trophy } from 'lucide-react';
 
@@ -252,16 +253,13 @@ export const CodmScoreModal: React.FC<CodmScoreModalProps> = ({
                     <tr key={team.id} className={isDupe ? 'row-duplicate-placement' : ''}>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          {team.logoUrl ? (
-                            <img src={team.logoUrl} alt={team.name} className="team-logo-small" />
-                          ) : (
-                            <span
-                              className="team-logo-small"
-                              style={{ backgroundColor: team.avatarColor || '#3b82f6' }}
-                            >
-                              {team.avatarIcon || '🛡️'}
-                            </span>
-                          )}
+                          <TeamBadge
+                            logoUrl={team.logoUrl}
+                            name={team.name}
+                            tag={team.tag}
+                            color={team.avatarColor}
+                            size={28}
+                          />
                           <div>
                             <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{team.name}</div>
                             {team.tag && (

@@ -14,6 +14,9 @@ import {
   saveTournamentToCloud,
   fetchTournamentFromCloud,
   subscribeToTournamentRealtime,
+  saveCodmTournamentToCloud,
+  fetchCodmTournamentFromCloud,
+  subscribeToCodmRealtime,
 } from './services/supabaseService';
 import { Header } from './components/Header';
 import { BracketCanvas } from './components/BracketCanvas';
@@ -219,10 +222,29 @@ export const App: React.FC = () => {
     safeSetLocalStorage('codm_rounds', codmRounds);
   }, [codmRounds]);
 
-  // Realtime subscription setup
+  // Initial load from cloud and realtime subscriptions
   useEffect(() => {
     if (isCloudConnected) {
-      const unsubscribe = subscribeToTournamentRealtime(tournamentId, async () => {
+      // 1. Initial fetch for Bracket Tournament
+      fetchTournamentFromCloud(tournamentId).then((cloud) => {
+        if (cloud) {
+          setMatches(sanitizeMatches(cloud.matches, cloud.settings));
+          setParticipants(cloud.participants);
+          setSettings(cloud.settings);
+        }
+      });
+
+      // 2. Initial fetch for CODM Tournament
+      fetchCodmTournamentFromCloud().then((codmData) => {
+        if (codmData) {
+          setCodmSettings(codmData.settings);
+          setCodmTeams(codmData.teams);
+          setCodmRounds(codmData.rounds);
+        }
+      });
+
+      // 3. Realtime listener for Bracket
+      const unsubscribeBracket = subscribeToTournamentRealtime(tournamentId, async () => {
         const cloud = await fetchTournamentFromCloud(tournamentId);
         if (cloud) {
           setMatches(sanitizeMatches(cloud.matches, cloud.settings));
@@ -230,7 +252,21 @@ export const App: React.FC = () => {
           setSettings(cloud.settings);
         }
       });
-      return () => unsubscribe();
+
+      // 4. Realtime listener for CODM
+      const unsubscribeCodm = subscribeToCodmRealtime(async () => {
+        const codmData = await fetchCodmTournamentFromCloud();
+        if (codmData) {
+          setCodmSettings(codmData.settings);
+          setCodmTeams(codmData.teams);
+          setCodmRounds(codmData.rounds);
+        }
+      });
+
+      return () => {
+        unsubscribeBracket();
+        unsubscribeCodm();
+      };
     }
   }, [isCloudConnected]);
 
@@ -252,9 +288,26 @@ export const App: React.FC = () => {
   // Handle participant updates
   const handleUpdateParticipants = (newParticipants: Participant[]) => {
     setParticipants(newParticipants);
-    const newMatches = generateBracket(newParticipants, settings);
-    setMatches(newMatches);
-    autoSyncCloud({ ...fullTournamentData, participants: newParticipants, matches: newMatches });
+
+    // If participant count and IDs match, update participant info in matches without resetting bracket scores
+    const sameIds =
+      newParticipants.length === participants.length &&
+      newParticipants.every((np, idx) => np.id === participants[idx]?.id);
+
+    let updatedMatches: Match[];
+    if (sameIds && matches.length > 0) {
+      const pMap = new Map(newParticipants.map((p) => [p.id, p]));
+      updatedMatches = matches.map((m) => ({
+        ...m,
+        participant1: m.participant1 ? pMap.get(m.participant1.id) || m.participant1 : null,
+        participant2: m.participant2 ? pMap.get(m.participant2.id) || m.participant2 : null,
+      }));
+    } else {
+      updatedMatches = generateBracket(newParticipants, settings);
+    }
+
+    setMatches(updatedMatches);
+    autoSyncCloud({ ...fullTournamentData, participants: newParticipants, matches: updatedMatches });
   };
 
   // Handle settings update
@@ -511,15 +564,16 @@ export const App: React.FC = () => {
         onUpdateTeams={(updated) => {
           setCodmTeams(updated);
           safeSetLocalStorage('codm_teams', updated);
-          setCodmSettings((prev) => {
-            const next = {
-              ...prev,
-              totalTeams: updated.length,
-              subtitle: prev.subtitle.replace(/\d+\s*Teams/i, `${updated.length} Teams`),
-            };
-            safeSetLocalStorage('codm_settings', next);
-            return next;
-          });
+          const nextSettings = {
+            ...codmSettings,
+            totalTeams: updated.length,
+            subtitle: codmSettings.subtitle.replace(/\d+\s*Teams/i, `${updated.length} Teams`),
+          };
+          setCodmSettings(nextSettings);
+          safeSetLocalStorage('codm_settings', nextSettings);
+          if (isCloudConnected) {
+            saveCodmTournamentToCloud(nextSettings, updated, codmRounds);
+          }
         }}
       />
 
@@ -536,6 +590,9 @@ export const App: React.FC = () => {
           );
           setCodmRounds(updated);
           safeSetLocalStorage('codm_rounds', updated);
+          if (isCloudConnected) {
+            saveCodmTournamentToCloud(codmSettings, codmTeams, updated);
+          }
         }}
       />
     </div>

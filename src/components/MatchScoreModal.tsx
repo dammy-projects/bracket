@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Match } from '../types/tournament';
+import { Match, Participant } from '../types/tournament';
+import { TeamBadge } from './common/TeamBadge';
 import { X, Trophy, Check, Award } from 'lucide-react';
 
 interface MatchScoreModalProps {
@@ -143,17 +144,14 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {participant1 ? (
                 <>
-                  <span className="seed-badge">{participant1.seed}</span>
-                  {participant1.logoUrl ? (
-                    <img src={participant1.logoUrl} alt="" className="team-logo" />
-                  ) : (
-                    <span
-                      className="team-logo"
-                      style={{ backgroundColor: participant1.avatarColor || '#3b82f6' }}
-                    >
-                      {participant1.avatarIcon || '🏆'}
-                    </span>
-                  )}
+                  <TeamBadge
+                    logoUrl={participant1.logoUrl}
+                    name={participant1.name}
+                    tag={participant1.tag}
+                    color={participant1.avatarColor}
+                    size={36}
+                    className="team-logo"
+                  />
                   <div>
                     <div style={{ fontWeight: 700 }}>{participant1.name}</div>
                     {participant1.tag && (
@@ -210,17 +208,14 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {participant2 ? (
                 <>
-                  <span className="seed-badge">{participant2.seed}</span>
-                  {participant2.logoUrl ? (
-                    <img src={participant2.logoUrl} alt="" className="team-logo" />
-                  ) : (
-                    <span
-                      className="team-logo"
-                      style={{ backgroundColor: participant2.avatarColor || '#3b82f6' }}
-                    >
-                      {participant2.avatarIcon || '🏆'}
-                    </span>
-                  )}
+                  <TeamBadge
+                    logoUrl={participant2.logoUrl}
+                    name={participant2.name}
+                    tag={participant2.tag}
+                    color={participant2.avatarColor}
+                    size={36}
+                    className="team-logo"
+                  />
                   <div>
                     <div style={{ fontWeight: 700 }}>{participant2.name}</div>
                     {participant2.tag && (

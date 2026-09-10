@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Participant } from '../types/tournament';
+import { TeamBadge } from './common/TeamBadge';
 import confetti from 'canvas-confetti';
 import { Trophy, Sparkles, X } from 'lucide-react';
 
@@ -117,28 +118,13 @@ export const WinnerCelebrationModal: React.FC<WinnerCelebrationModalProps> = ({
               marginTop: '12px',
             }}
           >
-            {champion.logoUrl ? (
-              <img
-                src={champion.logoUrl}
-                alt=""
-                style={{ width: '48px', height: '48px', borderRadius: '10px' }}
-              />
-            ) : (
-              <span
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '10px',
-                  backgroundColor: champion.avatarColor || '#3b82f6',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '28px',
-                }}
-              >
-                {champion.avatarIcon || '🏆'}
-              </span>
-            )}
+            <TeamBadge
+              logoUrl={champion.logoUrl}
+              name={champion.name}
+              tag={champion.tag}
+              color={champion.avatarColor}
+              size={56}
+            />
           </div>
         </div>
 

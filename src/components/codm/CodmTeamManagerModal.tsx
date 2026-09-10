@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { CodmTeam, CodmPlayer } from '../../types/codm';
 import { PRESET_AVATARS } from '../../utils/defaultData';
 import { uploadLogoToSupabaseStorage } from '../../services/supabaseService';
+import { compressImageFile } from '../../utils/imageCompressor';
+import { TeamBadge } from '../common/TeamBadge';
 import { X, Users, Upload, Shield, UserCheck, ChevronRight, Save, Plus, Trash2 } from 'lucide-react';
 
 interface CodmTeamManagerModalProps {
@@ -43,7 +45,6 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
       tag: `T${newIdx}`,
       seed: newIdx,
       avatarColor: avatar.color,
-      avatarIcon: avatar.icon,
       players: [
         { id: `p_${Date.now()}_1`, name: 'Player 1', ign: '', role: 'main' },
         { id: `p_${Date.now()}_2`, name: 'Player 2', ign: '', role: 'main' },
@@ -104,18 +105,15 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && currentTeam) {
+    const rawFile = e.target.files?.[0];
+    if (rawFile && currentTeam) {
       setIsUploading(true);
+      const { file, dataUrl } = await compressImageFile(rawFile);
       const publicUrl = await uploadLogoToSupabaseStorage(file, `codm_team_${currentTeam.id}`);
       if (publicUrl) {
         handleUpdateTeamField('logoUrl', publicUrl);
       } else {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          handleUpdateTeamField('logoUrl', reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        handleUpdateTeamField('logoUrl', dataUrl);
       }
       setIsUploading(false);
     }
@@ -160,16 +158,13 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className="seed-badge">{idx + 1}</span>
-                  {team.logoUrl ? (
-                    <img src={team.logoUrl} alt={team.name} className="team-logo-small" />
-                  ) : (
-                    <span
-                      className="team-logo-small"
-                      style={{ backgroundColor: team.avatarColor || '#3b82f6' }}
-                    >
-                      {team.avatarIcon || '🛡️'}
-                    </span>
-                  )}
+                  <TeamBadge
+                    logoUrl={team.logoUrl}
+                    name={team.name}
+                    tag={team.tag}
+                    color={team.avatarColor}
+                    size={28}
+                  />
                   <div style={{ textAlign: 'left' }}>
                     <div className="team-nav-name">{team.name}</div>
                     {team.tag && <div className="team-nav-tag">{team.tag}</div>}
@@ -210,24 +205,13 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
             <div className="codm-team-detail-panel">
               <div className="team-meta-header">
                 <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                  <div
-                    className="brand-logo-container"
-                    style={{
-                      width: '56px',
-                      height: '56px',
-                      backgroundColor: currentTeam.avatarColor || '#3b82f6',
-                    }}
-                  >
-                    {currentTeam.logoUrl ? (
-                      <img
-                        src={currentTeam.logoUrl}
-                        alt="Logo"
-                        style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <span style={{ fontSize: '1.8rem' }}>{currentTeam.avatarIcon || '🛡️'}</span>
-                    )}
-                  </div>
+                  <TeamBadge
+                    logoUrl={currentTeam.logoUrl}
+                    name={currentTeam.name}
+                    tag={currentTeam.tag}
+                    color={currentTeam.avatarColor}
+                    size={56}
+                  />
 
                   <div style={{ flex: 1 }}>
                     <div className="form-row" style={{ alignItems: 'flex-end' }}>
@@ -273,11 +257,11 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
                   </div>
                 </div>
 
-                {/* Logo & Avatar Pickers */}
-                <div style={{ display: 'flex', gap: '10px', marginTop: '12px', alignItems: 'center' }}>
+                {/* Logo & Theme Color Controls */}
+                <div style={{ display: 'flex', gap: '10px', marginTop: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <label className="icon-btn" style={{ cursor: 'pointer', fontSize: '0.75rem' }}>
                     <Upload size={14} />
-                    <span>{isUploading ? 'Uploading...' : 'Upload Logo'}</span>
+                    <span>{isUploading ? 'Uploading...' : 'Upload Custom Logo'}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -287,24 +271,49 @@ export const CodmTeamManagerModal: React.FC<CodmTeamManagerModalProps> = ({
                     />
                   </label>
 
-                  <div className="avatar-grid-compact">
-                    {PRESET_AVATARS.slice(0, 8).map((avatar) => (
-                      <div
-                        key={avatar.id}
-                        className={`avatar-option-small ${
-                          currentTeam.avatarIcon === avatar.icon ? 'selected' : ''
-                        }`}
-                        style={{ backgroundColor: avatar.color }}
-                        onClick={() => {
-                          handleUpdateTeamField('avatarIcon', avatar.icon);
-                          handleUpdateTeamField('avatarColor', avatar.color);
-                          handleUpdateTeamField('logoUrl', '');
-                        }}
-                        title={avatar.label}
-                      >
-                        {avatar.icon}
-                      </div>
-                    ))}
+                  {currentTeam.logoUrl && (
+                    <button
+                      type="button"
+                      className="danger-btn"
+                      style={{ fontSize: '0.75rem', padding: '6px 10px' }}
+                      onClick={() => handleUpdateTeamField('logoUrl', '')}
+                    >
+                      <Trash2 size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                      Remove Custom Logo
+                    </button>
+                  )}
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Theme:</span>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {PRESET_AVATARS.slice(0, 8).map((avatar) => (
+                        <button
+                          key={avatar.id}
+                          type="button"
+                          className="avatar-option-small"
+                          style={{
+                            backgroundColor: avatar.color,
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '6px',
+                            border: currentTeam.avatarColor === avatar.color ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.2)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 0,
+                          }}
+                          onClick={() => {
+                            handleUpdateTeamField('avatarColor', avatar.color);
+                          }}
+                          title={avatar.label}
+                        >
+                          {currentTeam.avatarColor === avatar.color && (
+                            <span style={{ color: '#fff', fontSize: '10px', fontWeight: 'bold' }}>✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
