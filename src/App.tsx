@@ -7,7 +7,13 @@ import {
   INITIAL_CODM_TEAMS,
   INITIAL_CODM_ROUNDS,
 } from './utils/codmDefaultData';
-import { generateBracket, setMatchWinner, getRoundNames } from './utils/bracketGenerator';
+import {
+  generateBracket,
+  setMatchWinner,
+  getRoundNames,
+  ensureBracketIntegrity,
+  propagateWinners,
+} from './utils/bracketGenerator';
 import { safeSetLocalStorage } from './utils/imageCompressor';
 import { isSupabaseConfigured } from './lib/supabase';
 import {
@@ -124,16 +130,8 @@ export const App: React.FC = () => {
   const [selectedCodmRoundNum, setSelectedCodmRoundNum] = useState<number | null>(null);
 
   const sanitizeMatches = (rawMatches: Match[], currentSettings: TournamentSettings): Match[] => {
-    return rawMatches.map((m) => {
-      if (m.id === 'm_3rd_place' || m.isThirdPlaceMatch) {
-        return {
-          ...m,
-          isThirdPlaceMatch: true,
-          bestOf: currentSettings.thirdPlaceBestOf ?? 3,
-        };
-      }
-      return m;
-    });
+    const ensured = ensureBracketIntegrity(rawMatches, currentSettings);
+    return propagateWinners(ensured, currentSettings);
   };
 
   const [matches, setMatches] = useState<Match[]>(() => {
@@ -297,11 +295,12 @@ export const App: React.FC = () => {
     let updatedMatches: Match[];
     if (sameIds && matches.length > 0) {
       const pMap = new Map(newParticipants.map((p) => [p.id, p]));
-      updatedMatches = matches.map((m) => ({
+      const mapped = matches.map((m) => ({
         ...m,
         participant1: m.participant1 ? pMap.get(m.participant1.id) || m.participant1 : null,
         participant2: m.participant2 ? pMap.get(m.participant2.id) || m.participant2 : null,
       }));
+      updatedMatches = propagateWinners(ensureBracketIntegrity(mapped, settings), settings);
     } else {
       updatedMatches = generateBracket(newParticipants, settings);
     }
@@ -330,7 +329,7 @@ export const App: React.FC = () => {
     score1: number | null,
     score2: number | null
   ) => {
-    const updatedMatches = setMatchWinner(matches, matchId, winnerId, score1, score2);
+    const updatedMatches = setMatchWinner(matches, matchId, winnerId, score1, score2, settings);
     setMatches(updatedMatches);
     autoSyncCloud({ ...fullTournamentData, matches: updatedMatches });
 

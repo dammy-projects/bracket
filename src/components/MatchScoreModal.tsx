@@ -47,13 +47,20 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
   };
 
   const handleSave = () => {
-    const s1 = score1 !== '' ? parseInt(score1, 10) : null;
-    const s2 = score2 !== '' ? parseInt(score2, 10) : null;
+    let s1 = score1 !== '' ? parseInt(score1, 10) : null;
+    let s2 = score2 !== '' ? parseInt(score2, 10) : null;
+
+    // If one score is provided and the other left blank (showing placeholder 0), default blank to 0
+    if (s1 !== null && s2 === null && score2 === '') {
+      s2 = 0;
+    } else if (s2 !== null && s1 === null && score1 === '') {
+      s1 = 0;
+    }
 
     let autoWinner = selectedWinnerId;
     if (s1 !== null && s2 !== null) {
       if (s1 > s2 && participant1) autoWinner = participant1.id;
-      if (s2 > s1 && participant2) autoWinner = participant2.id;
+      else if (s2 > s1 && participant2) autoWinner = participant2.id;
     }
 
     onSaveScore(match.id, autoWinner, s1, s2);

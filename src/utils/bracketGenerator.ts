@@ -177,70 +177,142 @@ export function generateBracket(
   }
 
   // Propagate BYEs downstream initially
-  propagateWinners(matches);
+  const linkedMatches = ensureBracketIntegrity(matches, settings);
+  return propagateWinners(linkedMatches, settings);
+}
 
-  return matches;
+/**
+ * Ensures bracket structure integrity:
+ * 1. Checks if 3rd place match should exist and ensures it is present
+ * 2. Guarantees semifinal matches link to both Finals (winner) and 3rd Place Match (loser)
+ */
+export function ensureBracketIntegrity(
+  matches: Match[],
+  settings?: TournamentSettings
+): Match[] {
+  if (!matches || matches.length === 0) return matches;
+
+  const totalRounds = Math.max(...matches.map((m) => m.roundIndex)) + 1;
+  const hasThirdPlace = settings?.hasThirdPlaceMatch ?? true;
+  const thirdPlaceBestOf = settings?.thirdPlaceBestOf ?? 3;
+
+  const updatedMatches = matches.map((m) => ({ ...m }));
+
+  if (hasThirdPlace && totalRounds >= 2) {
+    let thirdPlaceMatch = updatedMatches.find(
+      (m) => m.id === 'm_3rd_place' || m.isThirdPlaceMatch
+    );
+
+    if (!thirdPlaceMatch) {
+      const maxMatchNumber = Math.max(...updatedMatches.map((m) => m.matchNumber), 0);
+      thirdPlaceMatch = {
+        id: 'm_3rd_place',
+        roundIndex: totalRounds - 1,
+        matchNumber: maxMatchNumber + 1,
+        participant1: null,
+        participant2: null,
+        score1: null,
+        score2: null,
+        winnerId: null,
+        nextMatchId: null,
+        nextMatchSlot: null,
+        status: 'scheduled',
+        isThirdPlaceMatch: true,
+        bestOf: thirdPlaceBestOf,
+      };
+      updatedMatches.push(thirdPlaceMatch);
+    } else {
+      thirdPlaceMatch.isThirdPlaceMatch = true;
+      thirdPlaceMatch.bestOf = thirdPlaceBestOf;
+      thirdPlaceMatch.roundIndex = totalRounds - 1;
+    }
+
+    // Semifinals is round (totalRounds - 2)
+    const semiRoundIndex = totalRounds - 2;
+    const semiMatches = updatedMatches
+      .filter(
+        (m) =>
+          m.roundIndex === semiRoundIndex &&
+          !m.isThirdPlaceMatch &&
+          m.id !== 'm_3rd_place'
+      )
+      .sort((a, b) => a.matchNumber - b.matchNumber);
+
+    if (semiMatches.length >= 2) {
+      semiMatches[0].loserNextMatchId = thirdPlaceMatch.id;
+      semiMatches[0].loserNextMatchSlot = 'participant1';
+
+      semiMatches[1].loserNextMatchId = thirdPlaceMatch.id;
+      semiMatches[1].loserNextMatchSlot = 'participant2';
+    }
+  }
+
+  return updatedMatches;
 }
 
 /**
  * Propagate existing match winners & losers to their target next matches
  */
-export function propagateWinners(matches: Match[]): Match[] {
+export function propagateWinners(
+  matches: Match[],
+  settings?: TournamentSettings
+): Match[] {
+  const verifiedMatches = ensureBracketIntegrity(matches, settings);
   const matchMap = new Map<string, Match>();
-  matches.forEach((m) => matchMap.set(m.id, { ...m }));
+  verifiedMatches.forEach((m) => matchMap.set(m.id, { ...m }));
 
   let updated = true;
   while (updated) {
     updated = false;
     for (const match of matchMap.values()) {
-      if (match.winnerId) {
-        const winner =
-          match.participant1?.id === match.winnerId
-            ? match.participant1
-            : match.participant2?.id === match.winnerId
-            ? match.participant2
-            : null;
+      const winner = match.winnerId
+        ? match.participant1?.id === match.winnerId
+          ? match.participant1
+          : match.participant2?.id === match.winnerId
+          ? match.participant2
+          : null
+        : null;
 
-        const loser =
-          match.participant1?.id === match.winnerId
-            ? match.participant2
-            : match.participant2?.id === match.winnerId
-            ? match.participant1
-            : null;
+      const loser = match.winnerId
+        ? match.participant1?.id === match.winnerId
+          ? match.participant2
+          : match.participant2?.id === match.winnerId
+          ? match.participant1
+          : null
+        : null;
 
-        // Advance Winner to next match
-        if (match.nextMatchId && match.nextMatchSlot && winner) {
-          const nextMatch = matchMap.get(match.nextMatchId);
-          if (nextMatch) {
-            const currentSlotParticipant = nextMatch[match.nextMatchSlot];
-            if (currentSlotParticipant?.id !== winner.id) {
-              nextMatch[match.nextMatchSlot] = winner;
-              if (nextMatch.winnerId && nextMatch.winnerId !== winner.id) {
-                nextMatch.winnerId = null;
-                nextMatch.score1 = null;
-                nextMatch.score2 = null;
-                nextMatch.status = 'scheduled';
-              }
-              updated = true;
+      // Advance or clear Winner in next match
+      if (match.nextMatchId && match.nextMatchSlot) {
+        const nextMatch = matchMap.get(match.nextMatchId);
+        if (nextMatch) {
+          const currentSlotParticipant = nextMatch[match.nextMatchSlot];
+          if (currentSlotParticipant?.id !== winner?.id) {
+            nextMatch[match.nextMatchSlot] = winner;
+            if (nextMatch.winnerId && nextMatch.winnerId !== winner?.id) {
+              nextMatch.winnerId = null;
+              nextMatch.score1 = null;
+              nextMatch.score2 = null;
+              nextMatch.status = 'scheduled';
             }
+            updated = true;
           }
         }
+      }
 
-        // Advance Loser to 3rd Place match
-        if (match.loserNextMatchId && match.loserNextMatchSlot && loser) {
-          const loserMatch = matchMap.get(match.loserNextMatchId);
-          if (loserMatch) {
-            const currentSlotParticipant = loserMatch[match.loserNextMatchSlot];
-            if (currentSlotParticipant?.id !== loser.id) {
-              loserMatch[match.loserNextMatchSlot] = loser;
-              if (loserMatch.winnerId && loserMatch.winnerId !== loser.id) {
-                loserMatch.winnerId = null;
-                loserMatch.score1 = null;
-                loserMatch.score2 = null;
-                loserMatch.status = 'scheduled';
-              }
-              updated = true;
+      // Advance or clear Loser in 3rd Place match
+      if (match.loserNextMatchId && match.loserNextMatchSlot) {
+        const loserMatch = matchMap.get(match.loserNextMatchId);
+        if (loserMatch) {
+          const currentSlotParticipant = loserMatch[match.loserNextMatchSlot];
+          if (currentSlotParticipant?.id !== loser?.id) {
+            loserMatch[match.loserNextMatchSlot] = loser;
+            if (loserMatch.winnerId && loserMatch.winnerId !== loser?.id) {
+              loserMatch.winnerId = null;
+              loserMatch.score1 = null;
+              loserMatch.score2 = null;
+              loserMatch.status = 'scheduled';
             }
+            updated = true;
           }
         }
       }
@@ -258,7 +330,8 @@ export function setMatchWinner(
   matchId: string,
   winnerId: string | null,
   score1: number | null = null,
-  score2: number | null = null
+  score2: number | null = null,
+  settings?: TournamentSettings
 ): Match[] {
   const updatedMatches = matches.map((m) => {
     if (m.id === matchId) {
@@ -273,7 +346,7 @@ export function setMatchWinner(
     return m;
   });
 
-  return propagateWinners(updatedMatches);
+  return propagateWinners(updatedMatches, settings);
 }
 
 /**

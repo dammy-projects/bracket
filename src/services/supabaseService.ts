@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../lib/supabase';
 import { Tournament, Participant, Match } from '../types/tournament';
+import { ensureBracketIntegrity, propagateWinners } from '../utils/bracketGenerator';
 import { CodmTournamentSettings, CodmTeam, CodmRound, CodmPlayer, CodmMatchResult } from '../types/codm';
 
 /**
@@ -180,22 +181,29 @@ export const fetchTournamentFromCloud = async (
       };
     });
 
+    const tourneySettings = {
+      title: tourney.title,
+      subtitle: tourney.subtitle || '',
+      logoUrl: tourney.logo_url || '',
+      bracketType: tourney.bracket_type || 'single_elimination',
+      hasThirdPlaceMatch: true,
+      quarterfinalsBestOf: 3,
+      semifinalsBestOf: 5,
+      finalsBestOf: 7,
+      thirdPlaceBestOf: 3,
+      statusBadge: tourney.status_badge || 'LIVE',
+    };
+
+    const linkedMatches = propagateWinners(
+      ensureBracketIntegrity(matches, tourneySettings),
+      tourneySettings
+    );
+
     return {
       id: tourney.id,
-      settings: {
-        title: tourney.title,
-        subtitle: tourney.subtitle || '',
-        logoUrl: tourney.logo_url || '',
-        bracketType: tourney.bracket_type || 'single_elimination',
-        hasThirdPlaceMatch: true,
-        quarterfinalsBestOf: 3,
-        semifinalsBestOf: 5,
-        finalsBestOf: 7,
-        thirdPlaceBestOf: 3,
-        statusBadge: tourney.status_badge || 'LIVE',
-      },
+      settings: tourneySettings,
       participants,
-      matches,
+      matches: linkedMatches,
       activeRoundIndex: 'all',
       highlightedParticipantId: null,
     };
