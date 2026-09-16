@@ -36,6 +36,7 @@ import { AdminLoginModal } from './components/AdminLoginModal';
 import { CodmLeaderboard } from './components/codm/CodmLeaderboard';
 import { CodmScoreModal } from './components/codm/CodmScoreModal';
 import { CodmTeamManagerModal } from './components/codm/CodmTeamManagerModal';
+import { CodmPointsManagerModal } from './components/codm/CodmPointsManagerModal';
 import { CodmRulesModal } from './components/codm/CodmRulesModal';
 
 export const App: React.FC = () => {
@@ -119,7 +120,16 @@ export const App: React.FC = () => {
 
   const [codmRounds, setCodmRounds] = useState<CodmRound[]>(() => {
     const saved = localStorage.getItem('codm_rounds');
-    return saved ? JSON.parse(saved) : INITIAL_CODM_ROUNDS;
+    if (!saved) return INITIAL_CODM_ROUNDS;
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length === 4) {
+        return parsed;
+      }
+      return INITIAL_CODM_ROUNDS;
+    } catch {
+      return INITIAL_CODM_ROUNDS;
+    }
   });
 
   const [codmRoundFilter, setCodmRoundFilter] = useState<number | 'all'>('all');
@@ -127,6 +137,7 @@ export const App: React.FC = () => {
   // CODM Modals
   const [isCodmRulesOpen, setIsCodmRulesOpen] = useState(false);
   const [isCodmTeamManagerOpen, setIsCodmTeamManagerOpen] = useState(false);
+  const [isCodmPointsManagerOpen, setIsCodmPointsManagerOpen] = useState(false);
   const [selectedCodmRoundNum, setSelectedCodmRoundNum] = useState<number | null>(null);
 
   const sanitizeMatches = (rawMatches: Match[], currentSettings: TournamentSettings): Match[] => {
@@ -467,6 +478,7 @@ export const App: React.FC = () => {
         onOpenParticipantsModal={() => setIsParticipantsOpen(true)}
         onOpenExportModal={() => setIsExportOpen(true)}
         onOpenSettingsModal={() => setIsSettingsOpen(true)}
+        onOpenCodmPointsManager={() => setIsCodmPointsManagerOpen(true)}
         onResetBracket={handleResetGeneral}
         onToggleFullscreen={handleToggleFullscreen}
         onPrint={handlePrint}
@@ -493,6 +505,7 @@ export const App: React.FC = () => {
           onSelectRoundFilter={setCodmRoundFilter}
           onOpenScoreModal={(roundNum) => setSelectedCodmRoundNum(roundNum)}
           onOpenTeamManager={() => setIsCodmTeamManagerOpen(true)}
+          onOpenPointsManager={() => setIsCodmPointsManagerOpen(true)}
           onOpenRulesModal={() => setIsCodmRulesOpen(true)}
         />
       )}
@@ -580,6 +593,7 @@ export const App: React.FC = () => {
         round={codmRounds.find((r) => r.roundNumber === selectedCodmRoundNum) || null}
         allRounds={codmRounds}
         teams={codmTeams}
+        settings={codmSettings}
         isOpen={selectedCodmRoundNum !== null}
         onClose={() => setSelectedCodmRoundNum(null)}
         onSelectRoundIndex={(num) => setSelectedCodmRoundNum(num)}
@@ -591,6 +605,28 @@ export const App: React.FC = () => {
           safeSetLocalStorage('codm_rounds', updated);
           if (isCloudConnected) {
             saveCodmTournamentToCloud(codmSettings, codmTeams, updated);
+          }
+        }}
+      />
+
+      <CodmPointsManagerModal
+        isOpen={isCodmPointsManagerOpen}
+        onClose={() => setIsCodmPointsManagerOpen(false)}
+        teams={codmTeams}
+        rounds={codmRounds}
+        settings={codmSettings}
+        onSaveAll={(updatedTeams, updatedRounds, updatedSettings) => {
+          setCodmTeams(updatedTeams);
+          safeSetLocalStorage('codm_teams', updatedTeams);
+
+          setCodmRounds(updatedRounds);
+          safeSetLocalStorage('codm_rounds', updatedRounds);
+
+          setCodmSettings(updatedSettings);
+          safeSetLocalStorage('codm_settings', updatedSettings);
+
+          if (isCloudConnected) {
+            saveCodmTournamentToCloud(updatedSettings, updatedTeams, updatedRounds);
           }
         }}
       />

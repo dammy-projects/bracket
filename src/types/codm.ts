@@ -16,6 +16,8 @@ export interface CodmTeam {
   avatarColor?: string;
   avatarIcon?: string;
   players: CodmPlayer[]; // 5 players: 4 Main, 1 Reserve
+  pointAdjustment?: number; // Manual bonus (+) or penalty (-) points
+  adjustmentReason?: string; // e.g. "Late check-in penalty (-2)", "MVP Bonus (+3)"
 }
 
 export interface CodmMatchResult {
@@ -25,6 +27,8 @@ export interface CodmMatchResult {
   placementPoints: number;
   killPoints: number;
   totalPoints: number;
+  adjustmentPoints?: number; // Optional per-match bonus/penalty
+  adjustmentReason?: string;
 }
 
 export interface CodmRound {
@@ -58,6 +62,7 @@ export interface CodmTournamentSettings {
   dateText: string;
   pointsPerKill: number;
   adminPasscode?: string;
+  placementPoints?: Record<number, number>; // Customizable placement points (defaults to CODM_PLACEMENT_POINTS)
 }
 
 export interface CodmTeamStanding {
@@ -68,6 +73,9 @@ export interface CodmTeamStanding {
   };
   totalKills: number;
   totalPlacementPoints: number;
+  totalKillPoints: number;
+  pointAdjustment: number;
+  adjustmentReason?: string;
   totalPoints: number;
   bestPlacement: number;
   firstPlaceCount: number;

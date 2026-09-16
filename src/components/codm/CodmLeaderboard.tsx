@@ -4,8 +4,9 @@ import {
   CodmRound,
   CodmTournamentSettings,
   CodmTeamStanding,
+  CODM_PLACEMENT_POINTS,
 } from '../../types/codm';
-import { computeOverallStandings } from '../../utils/codmCalculator';
+import { computeOverallStandings, calculateMatchPoints } from '../../utils/codmCalculator';
 import { TeamBadge } from '../common/TeamBadge';
 import {
   Trophy,
@@ -19,6 +20,7 @@ import {
   UserCheck,
   ChevronRight,
   Sparkles,
+  Calculator,
 } from 'lucide-react';
 
 interface CodmLeaderboardProps {
@@ -30,6 +32,7 @@ interface CodmLeaderboardProps {
   onSelectRoundFilter: (filter: number | 'all') => void;
   onOpenScoreModal: (roundNumber: number) => void;
   onOpenTeamManager: () => void;
+  onOpenPointsManager: () => void;
   onOpenRulesModal: () => void;
 }
 
@@ -42,33 +45,59 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
   onSelectRoundFilter,
   onOpenScoreModal,
   onOpenTeamManager,
+  onOpenPointsManager,
   onOpenRulesModal,
 }) => {
-  const standings = computeOverallStandings(teams, rounds);
+  const standings = computeOverallStandings(teams, rounds, settings);
 
   const selectedRound =
     activeRoundFilter === 'all'
       ? null
       : rounds.find((r) => r.roundNumber === activeRoundFilter);
 
-  // Sort single round results if a specific match is active
+  // Sort single round results by points if a specific match is active
   const singleRoundStandings = selectedRound
     ? [...teams]
         .map((team) => {
-          const res = selectedRound.results[team.id] || {
-            placement: 0,
-            kills: 0,
-            placementPoints: 0,
-            killPoints: 0,
-            totalPoints: 0,
+          const raw = selectedRound.results ? selectedRound.results[team.id] : undefined;
+          const placement = raw?.placement || 0;
+          const kills = raw?.kills || 0;
+          const { placementPoints, killPoints, totalPoints } = calculateMatchPoints(
+            placement,
+            kills,
+            settings.pointsPerKill || 1,
+            settings.placementPoints || CODM_PLACEMENT_POINTS,
+            raw?.adjustmentPoints || 0
+          );
+          return {
+            team,
+            placement,
+            kills,
+            placementPoints,
+            killPoints,
+            totalPoints,
+            adjustmentPoints: raw?.adjustmentPoints || 0,
+            adjustmentReason: raw?.adjustmentReason,
           };
-          return { team, ...res };
         })
         .sort((a, b) => {
-          if (a.placement === 0) return 1;
-          if (b.placement === 0) return -1;
-          return a.placement - b.placement;
+          if (b.totalPoints !== a.totalPoints) {
+            return b.totalPoints - a.totalPoints;
+          }
+          if (b.kills !== a.kills) {
+            return b.kills - a.kills;
+          }
+          if (a.placement > 0 && b.placement > 0) {
+            return a.placement - b.placement;
+          }
+          if (a.placement > 0) return -1;
+          if (b.placement > 0) return 1;
+          return a.team.seed - b.team.seed;
         })
+        .map((item, idx) => ({
+          ...item,
+          roundRank: idx + 1,
+        }))
     : [];
 
   const top3 = standings.slice(0, 3);
@@ -114,10 +143,26 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
               <span>📜 Rules</span>
             </button>
             {isAdmin && (
-              <button className="icon-btn primary" onClick={onOpenTeamManager}>
-                <Users size={16} />
-                <span>Manage Rosters</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="icon-btn primary"
+                  onClick={onOpenPointsManager}
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: '#000000',
+                    fontWeight: 700,
+                  }}
+                  title="Manage team scores, penalties, and points system"
+                >
+                  <Calculator size={16} />
+                  <span>Manage Points</span>
+                </button>
+                <button className="icon-btn" onClick={onOpenTeamManager} title="Manage team rosters">
+                  <Users size={16} />
+                  <span>Manage Rosters</span>
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -137,7 +182,7 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
           </button>
 
           {rounds.map((r) => {
-            const hasScores = Object.values(r.results).some((res) => res.placement > 0);
+            const hasScores = Object.values(r.results || {}).some((res) => res && res.placement > 0);
             return (
               <div
                 key={r.roundNumber}
@@ -376,15 +421,28 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                 <Award size={20} color="#f59e0b" />
                 <h3>Official Leaderboard & Standings</h3>
               </div>
-              <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-                Ranking: Total Points (Desc) → Total Kills (Desc) → Best Placement
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+                  Auto-Placement: Ranked by Total Points (Desc) → Total Kills (Desc) → Wins → Seed
+                </span>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    style={{ fontSize: '0.75rem', padding: '4px 10px', gap: '5px' }}
+                    onClick={onOpenPointsManager}
+                  >
+                    <Calculator size={13} />
+                    <span>Manage Points & Rules</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <table className="codm-standings-table">
               <thead>
                 <tr>
-                  <th style={{ width: '60px' }}>Rank</th>
+                  <th style={{ width: '85px' }}>Placement</th>
                   <th>Team / Department</th>
                   <th className="match-col">M1</th>
                   <th className="match-col">M2</th>
@@ -392,6 +450,7 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                   <th className="match-col">M4</th>
                   <th style={{ textAlign: 'center' }}>Total Kills</th>
                   <th style={{ textAlign: 'center' }}>Placement Pts</th>
+                  <th style={{ textAlign: 'center' }}>Adj (±)</th>
                   <th style={{ textAlign: 'right' }}>Total Points</th>
                 </tr>
               </thead>
@@ -408,10 +467,10 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
 
                   return (
                     <tr key={row.team.id} className={`standings-row ${rankClass}`}>
-                      {/* Rank Cell */}
+                      {/* Rank / Placement Cell */}
                       <td>
                         <div className={`rank-indicator ${rankClass}`}>
-                          {row.rank === 1 ? '🥇 1' : row.rank === 2 ? '🥈 2' : row.rank === 3 ? '🥉 3' : row.rank}
+                          {row.rank === 1 ? '🥇 1st' : row.rank === 2 ? '🥈 2nd' : row.rank === 3 ? '🥉 3rd' : `${row.rank}th`}
                         </div>
                       </td>
 
@@ -463,11 +522,11 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                         const mRes = row.matchBreakdown[mNum];
                         return (
                           <td key={mNum} className="match-col">
-                            {mRes && mRes.placement > 0 ? (
+                            {mRes && (mRes.placement > 0 || mRes.kills > 0 || mRes.totalPoints > 0) ? (
                               <div className="match-cell-box">
                                 <span className="match-pts-val">{mRes.totalPoints}</span>
                                 <span className="match-pts-sub">
-                                  #{mRes.placement} • {mRes.kills}k
+                                  {mRes.placement > 0 ? `#${mRes.placement} • ` : ''}{mRes.kills}k
                                 </span>
                               </div>
                             ) : (
@@ -487,6 +546,24 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                       {/* Total Placement Points */}
                       <td style={{ textAlign: 'center' }}>
                         <span className="placement-pill">+{row.totalPlacementPoints}</span>
+                      </td>
+
+                      {/* Manual Point Adjustment (Bonus/Penalty) */}
+                      <td style={{ textAlign: 'center' }}>
+                        {row.pointAdjustment !== 0 ? (
+                          <span
+                            className={`pts-tag ${row.pointAdjustment > 0 ? 'bonus-tag' : 'penalty-tag'}`}
+                            title={
+                              row.adjustmentReason
+                                ? `${row.adjustmentReason} (${row.pointAdjustment > 0 ? '+' : ''}${row.pointAdjustment} pts)`
+                                : `Point Adjustment: ${row.pointAdjustment > 0 ? '+' : ''}${row.pointAdjustment} pts`
+                            }
+                          >
+                            {row.pointAdjustment > 0 ? `+${row.pointAdjustment}` : row.pointAdjustment}
+                          </span>
+                        ) : (
+                          <span style={{ color: '#6b7280', fontSize: '0.85rem' }}>-</span>
+                        )}
                       </td>
 
                       {/* Total Grand Score */}
@@ -512,80 +589,118 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                 </div>
 
                 {isAdmin && (
-                  <button
-                    className="icon-btn primary"
-                    onClick={() => onOpenScoreModal(selectedRound.roundNumber)}
-                  >
-                    <Edit3 size={16} />
-                    <span>Edit {selectedRound.name} Scores</span>
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      onClick={onOpenPointsManager}
+                      title="Open 4-Round Points Manager"
+                    >
+                      <Calculator size={15} />
+                      <span>Manage 4-Round Points</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-btn primary"
+                      onClick={() => onOpenScoreModal(selectedRound.roundNumber)}
+                    >
+                      <Edit3 size={15} />
+                      <span>Edit {selectedRound.name} Scores</span>
+                    </button>
+                  </div>
                 )}
               </div>
 
               <table className="codm-standings-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '120px' }}>Placement</th>
+                    <th style={{ width: '130px' }}>Placement</th>
                     <th>Team</th>
-                    <th style={{ textAlign: 'center', width: '150px' }}>Placement Pts</th>
-                    <th style={{ textAlign: 'center', width: '150px' }}>Kills (+1 pt each)</th>
-                    <th style={{ textAlign: 'right', width: '150px' }}>Match Score</th>
+                    <th style={{ textAlign: 'center', width: '130px' }}>In-Game Place</th>
+                    <th style={{ textAlign: 'center', width: '140px' }}>Placement Pts</th>
+                    <th style={{ textAlign: 'center', width: '150px' }}>
+                      Kills (+{settings.pointsPerKill || 1} pt each)
+                    </th>
+                    <th style={{ textAlign: 'right', width: '140px' }}>Round Points</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {singleRoundStandings.map((row) => (
-                    <tr key={row.team.id} className="standings-row">
-                      <td>
-                        {row.placement > 0 ? (
-                          <span className={`placement-badge place-${row.placement}`}>
-                            {row.placement === 1
+                  {singleRoundStandings.map((row) => {
+                    const rankClass =
+                      row.roundRank === 1
+                        ? 'rank-first'
+                        : row.roundRank === 2
+                        ? 'rank-second'
+                        : row.roundRank === 3
+                        ? 'rank-third'
+                        : '';
+
+                    return (
+                      <tr key={row.team.id} className={`standings-row ${rankClass}`}>
+                        <td>
+                          <div className={`rank-indicator ${rankClass}`}>
+                            {row.roundRank === 1
                               ? '🥇 1st'
-                              : row.placement === 2
+                              : row.roundRank === 2
                               ? '🥈 2nd'
-                              : row.placement === 3
+                              : row.roundRank === 3
                               ? '🥉 3rd'
-                              : `${row.placement}th`}
-                          </span>
-                        ) : (
-                          <span style={{ color: '#6b7280', fontSize: '0.85rem' }}>Unrecorded</span>
-                        )}
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <TeamBadge
-                            logoUrl={row.team.logoUrl}
-                            name={row.team.name}
-                            tag={row.team.tag}
-                            color={row.team.avatarColor}
-                            size={32}
-                          />
-                          <div>
-                            <span style={{ fontWeight: 600 }}>{row.team.name}</span>
-                            {row.team.tag && (
-                              <span className="team-tag-badge" style={{ marginLeft: '8px' }}>
-                                {row.team.tag}
-                              </span>
-                            )}
+                              : `${row.roundRank}th`}
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="placement-pill">+{row.placementPoints} pts</span>
-                      </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <TeamBadge
+                              logoUrl={row.team.logoUrl}
+                              name={row.team.name}
+                              tag={row.team.tag}
+                              color={row.team.avatarColor}
+                              size={32}
+                            />
+                            <div>
+                              <span style={{ fontWeight: 600 }}>{row.team.name}</span>
+                              {row.team.tag && (
+                                <span className="team-tag-badge" style={{ marginLeft: '8px' }}>
+                                  {row.team.tag}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
 
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="kills-pill">
-                          <Flame size={12} /> {row.kills} kills
-                        </span>
-                      </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {row.placement > 0 ? (
+                            <span className={`placement-badge place-${row.placement}`}>
+                              {row.placement === 1
+                                ? '👑 1st'
+                                : row.placement === 2
+                                ? '2nd'
+                                : row.placement === 3
+                                ? '3rd'
+                                : `${row.placement}th`}
+                            </span>
+                          ) : (
+                            <span style={{ color: '#6b7280', fontSize: '0.85rem' }}>-</span>
+                          )}
+                        </td>
 
-                      <td style={{ textAlign: 'right' }}>
-                        <span className="total-score-pill">{row.totalPoints} PTS</span>
-                      </td>
-                    </tr>
-                  ))}
+                        <td style={{ textAlign: 'center' }}>
+                          <span className="placement-pill">+{row.placementPoints} pts</span>
+                        </td>
+
+                        <td style={{ textAlign: 'center' }}>
+                          <span className="kills-pill">
+                            <Flame size={12} /> {row.kills} kills
+                          </span>
+                        </td>
+
+                        <td style={{ textAlign: 'right' }}>
+                          <span className="total-score-pill">{row.totalPoints} PTS</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -637,7 +752,7 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
           <table className="modern-print-table">
             <thead>
               <tr>
-                <th className="col-rank">RANK</th>
+                <th className="col-rank">PLACEMENT</th>
                 <th className="col-team">TEAM / DEPARTMENT</th>
                 <th className="col-match">
                   MATCH 1
@@ -710,11 +825,11 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
                       const mRes = row.matchBreakdown[mNum];
                       return (
                         <td key={mNum} className="col-match">
-                          {mRes && mRes.placement > 0 ? (
+                          {mRes && (mRes.placement > 0 || mRes.kills > 0 || mRes.totalPoints > 0) ? (
                             <div className="print-match-cell">
                               <span className="print-match-total">{mRes.totalPoints}</span>
                               <span className="print-match-breakdown">
-                                #{mRes.placement} • {mRes.kills}k
+                                {mRes.placement > 0 ? `#${mRes.placement} • ` : ''}{mRes.kills}k
                               </span>
                             </div>
                           ) : (
@@ -747,11 +862,13 @@ export const CodmLeaderboard: React.FC<CodmLeaderboardProps> = ({
           <div className="print-scoring-reference">
             <div className="reference-title">OFFICIAL SCORING FORMULA</div>
             <div className="reference-content">
-              <span><strong>Placement Points:</strong> 1st: 20 pts | 2nd: 15 pts | 3rd: 12 pts | 4th: 10 pts | 5th: 8 pts | 6th: 6 pts | 7th: 4 pts | 8th: 2 pts</span>
+              <span>
+                <strong>Placement Points:</strong> 1st: {settings.placementPoints?.[1] ?? 20} pts | 2nd: {settings.placementPoints?.[2] ?? 15} pts | 3rd: {settings.placementPoints?.[3] ?? 12} pts | 4th: {settings.placementPoints?.[4] ?? 10} pts | 5th: {settings.placementPoints?.[5] ?? 8} pts | 6th: {settings.placementPoints?.[6] ?? 6} pts | 7th: {settings.placementPoints?.[7] ?? 4} pts | 8th: {settings.placementPoints?.[8] ?? 2} pts
+              </span>
               <span> • </span>
-              <span><strong>Kill Points:</strong> +1 pt/kill</span>
+              <span><strong>Kill Points:</strong> +{settings.pointsPerKill || 1} pt/kill</span>
               <span> • </span>
-              <span><strong>Total:</strong> Placement Pts + Kill Pts</span>
+              <span><strong>Total:</strong> Placement Pts + Kill Pts (± Team Adjustments)</span>
             </div>
           </div>
 

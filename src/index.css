@@ -2462,3 +2462,139 @@ body {
   }
 }
 
+/* ========================================================
+   CODM TEAM POINTS MANAGER & MASTER MATRIX
+   ======================================================== */
+.codm-points-manager-modal {
+  background: #11141c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+}
+
+.codm-matrix-table-wrap {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(20, 24, 33, 0.6);
+  overflow-x: auto;
+}
+
+.codm-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.codm-matrix-table th {
+  background: rgba(13, 16, 23, 0.9);
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.codm-matrix-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.matrix-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.matrix-cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.matrix-select {
+  background: rgba(26, 31, 44, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #f3f4f6;
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 90px;
+}
+
+.matrix-select:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.matrix-kills-input {
+  background: rgba(26, 31, 44, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #f3f4f6;
+  width: 44px;
+  text-align: center;
+  padding: 4px 2px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.matrix-kills-input:focus {
+  border-color: #f59e0b;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.matrix-pts-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 32px;
+  text-align: center;
+}
+
+/* Points Tags (Bonus / Penalty) */
+.pts-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.pts-tag.bonus-tag {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.pts-tag.penalty-tag {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.pts-tag.placement-tag {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.pts-tag.total-tag {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-weight: 800;
+}
+
+

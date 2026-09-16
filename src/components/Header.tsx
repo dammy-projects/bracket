@@ -1,6 +1,19 @@
 import React from 'react';
 import { TournamentSettings, Round } from '../types/tournament';
-import { Users, Printer, Code, Maximize2, RefreshCw, Trophy, Lock, LogOut, ShieldCheck, Globe, Settings as SettingsIcon } from 'lucide-react';
+import {
+  Users,
+  Printer,
+  Code,
+  Maximize2,
+  RefreshCw,
+  Trophy,
+  Lock,
+  LogOut,
+  ShieldCheck,
+  Globe,
+  Settings as SettingsIcon,
+  Calculator,
+} from 'lucide-react';
 
 interface HeaderProps {
   settings: TournamentSettings;
@@ -16,6 +29,7 @@ interface HeaderProps {
   onOpenParticipantsModal: () => void;
   onOpenExportModal: () => void;
   onOpenSettingsModal: () => void;
+  onOpenCodmPointsManager?: () => void;
   onResetBracket: () => void;
   onToggleFullscreen: () => void;
   onPrint: () => void;
@@ -35,6 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenParticipantsModal,
   onOpenExportModal,
   onOpenSettingsModal,
+  onOpenCodmPointsManager,
   onResetBracket,
   onToggleFullscreen,
   onPrint,
@@ -168,7 +183,24 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>Settings</span>
                 </button>
               </>
-            ) : null}
+            ) : (
+              onOpenCodmPointsManager && (
+                <button
+                  type="button"
+                  className="icon-btn primary"
+                  onClick={onOpenCodmPointsManager}
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: '#000000',
+                    fontWeight: 700,
+                  }}
+                  title="Manage CODM Team Points, Penalties & Rules"
+                >
+                  <Calculator size={16} />
+                  <span>Manage Points</span>
+                </button>
+              )
+            )}
           </>
         ) : (
           <button className="icon-btn primary" onClick={onOpenLoginModal} title="Log in as Organizer Admin">

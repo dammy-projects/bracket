@@ -286,7 +286,11 @@ export const saveCodmTournamentToCloud = async (
       title: settings.title,
       subtitle: settings.subtitle,
       logo_url: settings.logoUrl || null,
-      bracket_type: 'codm_leaderboard',
+      bracket_type: JSON.stringify({
+        mode: 'codm_leaderboard',
+        pointsPerKill: settings.pointsPerKill || 1,
+        placementPoints: settings.placementPoints || null,
+      }),
       best_of: settings.totalMatches || 4,
       status_badge: settings.statusBadge,
       updated_at: new Date().toISOString(),
@@ -294,7 +298,7 @@ export const saveCodmTournamentToCloud = async (
 
     if (tourneyErr) throw tourneyErr;
 
-    // 2. Upsert CODM Teams in 'participants' table (storing 5-player squad in avatar_icon)
+    // 2. Upsert CODM Teams in 'participants' table (storing 5-player squad & adjustments in avatar_icon)
     if (teams.length > 0) {
       const teamRows = teams.map((team) => ({
         id: team.id,
@@ -304,7 +308,11 @@ export const saveCodmTournamentToCloud = async (
         seed: team.seed,
         logo_url: team.logoUrl || null,
         avatar_color: team.avatarColor || null,
-        avatar_icon: JSON.stringify(team.players || []),
+        avatar_icon: JSON.stringify({
+          players: team.players || [],
+          pointAdjustment: team.pointAdjustment || 0,
+          adjustmentReason: team.adjustmentReason || null,
+        }),
       }));
 
       const { error: teamErr } = await supabase.from('participants').upsert(teamRows);
@@ -383,9 +391,23 @@ export const fetchCodmTournamentFromCloud = async (): Promise<{
 
     const teams: CodmTeam[] = (pData || []).map((p) => {
       let players: CodmPlayer[] = [];
+      let pointAdjustment: number | undefined = undefined;
+      let adjustmentReason: string | undefined = undefined;
+
       try {
         if (p.avatar_icon) {
-          players = JSON.parse(p.avatar_icon);
+          const parsed = JSON.parse(p.avatar_icon);
+          if (Array.isArray(parsed)) {
+            players = parsed;
+          } else if (parsed && typeof parsed === 'object') {
+            players = parsed.players || [];
+            if (typeof parsed.pointAdjustment === 'number') {
+              pointAdjustment = parsed.pointAdjustment;
+            }
+            if (typeof parsed.adjustmentReason === 'string') {
+              adjustmentReason = parsed.adjustmentReason;
+            }
+          }
         }
       } catch {
         players = [];
@@ -410,6 +432,8 @@ export const fetchCodmTournamentFromCloud = async (): Promise<{
         logoUrl: p.logo_url || undefined,
         avatarColor: p.avatar_color || undefined,
         players,
+        pointAdjustment,
+        adjustmentReason,
       };
     });
 
@@ -433,6 +457,21 @@ export const fetchCodmTournamentFromCloud = async (): Promise<{
       };
     });
 
+    let pointsPerKill = 1;
+    let placementPoints: Record<number, number> | undefined = undefined;
+
+    if (tourney.bracket_type && tourney.bracket_type.startsWith('{')) {
+      try {
+        const meta = JSON.parse(tourney.bracket_type);
+        if (typeof meta.pointsPerKill === 'number') {
+          pointsPerKill = meta.pointsPerKill;
+        }
+        if (meta.placementPoints && typeof meta.placementPoints === 'object') {
+          placementPoints = meta.placementPoints;
+        }
+      } catch {}
+    }
+
     const settings: CodmTournamentSettings = {
       title: tourney.title || 'CALL OF DUTY: MOBILE – BATTLE ROYALE',
       subtitle: tourney.subtitle || 'Squad Mode • 8 Teams • 4 Rounds • Online Custom Lobby',
@@ -442,7 +481,8 @@ export const fetchCodmTournamentFromCloud = async (): Promise<{
       statusBadge: (tourney.status_badge as 'LIVE' | 'UPCOMING' | 'COMPLETED') || 'LIVE',
       logoUrl: tourney.logo_url || '',
       dateText: 'TBA',
-      pointsPerKill: 1,
+      pointsPerKill,
+      placementPoints,
       adminPasscode: 'admin123',
     };
 

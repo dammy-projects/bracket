@@ -1,4 +1,4 @@
-import { CodmTeam, CodmRound, CodmTournamentSettings } from '../types/codm';
+import { CodmTeam, CodmRound, CodmTournamentSettings, CODM_PLACEMENT_POINTS } from '../types/codm';
 
 export const CODM_MAPS = ['Isolated', 'Blackout', 'Krai'];
 
@@ -13,6 +13,7 @@ export const INITIAL_CODM_SETTINGS: CodmTournamentSettings = {
   pointsPerKill: 1,
   logoUrl: '',
   adminPasscode: 'admin123',
+  placementPoints: { ...CODM_PLACEMENT_POINTS },
 };
 
 export const INITIAL_CODM_TEAMS: CodmTeam[] = [
